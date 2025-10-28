@@ -316,55 +316,84 @@
         };
 
         async function sharePhoneNumber() {
-            const shareBtn = document.getElementById('sharePhoneBtn');
-            const status = document.getElementById('codeStatus');
+    const shareBtn = document.getElementById('sharePhoneBtn');
+    const status = document.getElementById('codeStatus');
+    
+    shareBtn.disabled = true;
+    shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
+    
+    try {
+        // Проверяем, находимся ли мы в Telegram Web App и доступен ли requestContact
+        if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+            console.log('✅ Running in Telegram Web App');
             
-            shareBtn.disabled = true;
-            shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
-            
-            try {
-                // Используем Telegram Web App для получения номера телефона
-                if (window.Telegram && Telegram.WebApp) {
-                    Telegram.WebApp.requestContact((contact) => {
-                        if (contact) {
-                            // Номер телефона получен
-                            authData.phone = contact.phone_number;
-                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер телефона получен';
-                            
-                            // Показываем форму ввода кода
-                            document.getElementById('initialScreen').style.display = 'none';
-                            document.getElementById('codeForm').style.display = 'block';
-                            
-                            // Автофокус на первый инпут кода
-                            setTimeout(() => {
-                                document.querySelector('.code-input').focus();
-                            }, 100);
-                            
-                            // Отправляем код на номер
-                            sendAuthCode();
-                        } else {
-                            status.textContent = 'Предоставление номера телефона отменено';
-                            shareBtn.disabled = false;
-                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
-                        }
-                    });
-                } else {
-                    // Fallback для тестирования вне Telegram
-                    authData.phone = '+1234567890';
-                    document.getElementById('initialScreen').style.display = 'none';
-                    document.getElementById('codeForm').style.display = 'block';
-                    setTimeout(() => {
-                        document.querySelector('.code-input').focus();
-                    }, 100);
-                    sendAuthCode();
-                }
-            } catch (error) {
-                console.error('Error requesting phone number:', error);
-                status.textContent = 'Ошибка при запросе номера телефона';
-                shareBtn.disabled = false;
-                shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+            // Пробуем использовать requestContact
+            if (typeof Telegram.WebApp.requestContact === 'function') {
+                Telegram.WebApp.requestContact((contact) => {
+                    if (contact) {
+                        // Номер телефона получен
+                        authData.phone = contact.phone_number;
+                        console.log('Phone number received:', authData.phone);
+                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер телефона получен';
+                        
+                        // Показываем форму ввода кода
+                        document.getElementById('initialScreen').style.display = 'none';
+                        document.getElementById('codeForm').style.display = 'block';
+                        
+                        // Автофокус на первый инпут кода
+                        setTimeout(() => {
+                            document.querySelector('.code-input').focus();
+                        }, 100);
+                        
+                        // Отправляем код на номер
+                        sendAuthCode();
+                    } else {
+                        status.textContent = 'Предоставление номера телефона отменено';
+                        shareBtn.disabled = false;
+                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+                    }
+                });
+            } else {
+                // requestContact недоступен, используем fallback
+                console.log('⚠️ requestContact not available, using fallback');
+                useFallbackAuth();
             }
+        } else {
+            // Не в Telegram Web App, используем fallback
+            console.log('🌐 Running in browser, using fallback');
+            useFallbackAuth();
         }
+    } catch (error) {
+        console.error('Error requesting phone number:', error);
+        // При любой ошибке используем fallback
+        useFallbackAuth();
+    }
+}
+
+// Новая функция для fallback аутентификации
+function useFallbackAuth() {
+    const shareBtn = document.getElementById('sharePhoneBtn');
+    const status = document.getElementById('codeStatus');
+    
+    // Используем тестовый номер для демонстрации
+    authData.phone = '+1234567890';
+    console.log('Using fallback phone number:', authData.phone);
+    
+    shareBtn.innerHTML = '<div class="telegram-icon"></div>Тестовый режим';
+    status.textContent = 'Запущен тестовый режим (не в Telegram)';
+    
+    // Показываем форму ввода кода
+    document.getElementById('initialScreen').style.display = 'none';
+    document.getElementById('codeForm').style.display = 'block';
+    
+    // Автофокус на первый инпут кода
+    setTimeout(() => {
+        document.querySelector('.code-input').focus();
+    }, 100);
+    
+    // Отправляем код на номер
+    sendAuthCode();
+}
 
         async function sendAuthCode() {
             const status = document.getElementById('codeStatus');
@@ -569,4 +598,5 @@
     </script>
 </body>
 </html>
+
 
