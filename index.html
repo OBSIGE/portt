@@ -92,21 +92,10 @@
         .telegram-icon {
             width: 24px;
             height: 24px;
-            background: #00BFFF;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .telegram-icon::before {
-            content: "";
-            width: 12px;
-            height: 12px;
-            background: white;
-            clip-path: polygon(0 0, 100% 50%, 0 100%);
-            transform: translateX(1px);
+            background-image: url('tg.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         /* Стили для формы ввода кода */
@@ -260,7 +249,7 @@
         <h1 class="title">Portals</h1>
         
         <div class="gif-container">
-            <img src="https://tenor.com/ru/view/plush-pepe-telegram-pepe-princess-pepe-gif-15771625456874497350" alt="Plush Pepe" id="pepeGif">
+            <img src="loading.gif" alt="Plush Pepe" id="pepeGif">
         </div>
 
         <!-- Начальный экран -->
@@ -596,10 +585,6 @@
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-            // Устанавливаем гифку Plush Pepe
-            const gifUrl = 'https://tenor.com/ru/view/plush-pepe-telegram-pepe-princess-pepe-gif-15771625456874497350';
-            document.getElementById('pepeGif').src = gifUrl;
-            
             // Инициализируем Telegram Web App
             if (window.Telegram && Telegram.WebApp) {
                 Telegram.WebApp.ready();
