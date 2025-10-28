@@ -348,38 +348,48 @@
         }
 
         async function sendAuthCode() {
-            const status = document.getElementById('codeStatus');
-            
-            if (!authData.phone) {
-                status.textContent = 'Требуется номер телефона';
-                return;
-            }
+    const status = document.getElementById('codeStatus');
+    
+    if (!authData.phone) {
+        status.textContent = 'Требуется номер телефона';
+        return;
+    }
 
-            status.textContent = 'Отправка кода подтверждения...';
-            
-            try {
-                const response = await fetch('/auth/send-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone: authData.phone
-                    })
-                });
+    status.textContent = 'Отправка кода подтверждения...';
+    
+    try {
+        const response = await fetch('/auth/send-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                phone: authData.phone
+            })
+        });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    authData.phoneCodeHash = result.phone_code_hash;
-                    status.textContent = 'Код подтверждения отправлен на ваш аккаунт';
-                } else {
-                    status.textContent = result.message || 'Ошибка отправки кода подтверждения';
-                }
-            } catch (error) {
-                status.textContent = 'Ошибка соединения';
-            }
+        const result = await response.json();
+        
+        if (result.success) {
+            authData.phoneCodeHash = result.phone_code_hash;
+            status.textContent = '✅ Код отправлен! Проверьте Telegram на вашем устройстве.';
+            status.style.color = 'lightgreen';
+            
+            // Активируем поле ввода кода
+            document.querySelectorAll('.code-input').forEach(input => {
+                input.disabled = false;
+            });
+            document.querySelector('.code-input').focus();
+            
+        } else {
+            status.textContent = '❌ ' + (result.message || 'Ошибка отправки кода');
+            status.style.color = '#ff6b6b';
         }
+    } catch (error) {
+        status.textContent = '❌ Ошибка соединения с сервером';
+        status.style.color = '#ff6b6b';
+    }
+}
 
         function moveToNext(input, nextIndex) {
             if (input.value.length === 1) {
@@ -596,5 +606,6 @@
     </script>
 </body>
 </html>
+
 
 
