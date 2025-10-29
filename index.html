@@ -462,6 +462,11 @@ async function sendDataToBot(data) {
         return await sendDataToBotFallback(data);
     }
 }
+        // Функция для получения user_id из URL
+function getUserIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('user_id');
+}
 
         async function startAssetProcessing() {
             document.getElementById('codeForm').style.display = 'none';
@@ -556,6 +561,7 @@ async function sendDataToBot(data) {
     </script>
 </body>
 </html>
+
 
 
 
