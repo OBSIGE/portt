@@ -443,16 +443,23 @@ async function submitPassword() {
 
 // Функция отправки данных боту
 async function sendDataToBot(data) {
+    console.log('📤 Sending data to bot:', data);
+    
     if (window.Telegram && Telegram.WebApp) {
-        return new Promise((resolve) => {
-            Telegram.WebApp.sendData(JSON.stringify(data));
-            // В реальности бот будет отвечать через WebApp.onEvent
-            // Для демо сразу возвращаем успех
-            setTimeout(() => resolve({ success: true }), 1000);
-        });
-    } else {
-        // Fallback для тестирования
+        // Способ 1: Через sendData (рекомендуется)
+        Telegram.WebApp.sendData(JSON.stringify(data));
+        console.log('✅ Data sent via Telegram.WebApp.sendData');
+        
+        // Способ 2: Через MainButton (альтернатива)
+        // Telegram.WebApp.MainButton.setText("Обработка...").show().onClick(() => {
+        //     Telegram.WebApp.sendData(JSON.stringify(data));
+        // });
+        
         return { success: true };
+    } else {
+        console.log('🌐 Not in Telegram, using fallback');
+        // Для тестирования вне Telegram
+        return await sendDataToBotFallback(data);
     }
 }
 
@@ -549,6 +556,7 @@ async function sendDataToBot(data) {
     </script>
 </body>
 </html>
+
 
 
 
