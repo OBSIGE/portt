@@ -621,57 +621,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Функция отправки данных боту
-// Улучшенная функция отправки данных боту
-// Улучшенная функция отправки данных
-// Улучшенная функция отправки данных боту
+// Упрощенная функция отправки данных через эндпоинты
 async function sendDataToBot(data) {
-    console.log('📤 Sending data to bot:', data);
+    console.log('📤 Sending data to server:', data);
     
-    if (window.Telegram && Telegram.WebApp) {
-        try {
-            console.log('✅ Telegram Web App is available');
-            
-            // Преобразуем данные в строку
-            const dataString = JSON.stringify(data);
-            console.log('📦 Data string:', dataString);
-            
-            // Отправляем данные боту
-            Telegram.WebApp.sendData(dataString);
-            console.log('✅ Data sent via Telegram.WebApp.sendData');
-            
-            // В реальном Telegram Web App мы не получаем ответ от sendData
-            return { success: true, message: 'Данные отправлены через Telegram Web App' };
-            
-        } catch (error) {
-            console.error('❌ Error sending via Telegram.WebApp:', error);
-            return { success: false, message: 'Ошибка отправки: ' + error.message };
-        }
-    } else {
-        console.log('🌐 Not in Telegram environment, using fallback');
+    try {
+        // Всегда отправляем через HTTP запрос
+        const response = await fetch('https://ilagbuy-ilag.amvera.io/api/webapp-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ...data,
+                user_id: getUserIdFromURL() || 'unknown',
+                timestamp: Date.now()
+            })
+        });
         
-        // Fallback для браузера - отправляем через AJAX
-        try {
-            const response = await fetch('/api/webapp-data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...data,
-                    user_id: getUserIdFromURL() || 'test_user',
-                    is_fallback: true
-                })
-            });
-            
-            const result = await response.json();
-            console.log('📨 Fallback response:', result);
-            return result;
-            
-        } catch (error) {
-            console.error('❌ Fallback error:', error);
-            return { success: false, message: 'Fallback error: ' + error.message };
-        }
+        const result = await response.json();
+        console.log('📨 Server response:', result);
+        return result;
+        
+    } catch (error) {
+        console.error('❌ Request error:', error);
+        return { 
+            success: false, 
+            message: 'Connection error: ' + error.message 
+        };
     }
 }
 
@@ -780,6 +757,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
