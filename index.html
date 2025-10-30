@@ -649,16 +649,31 @@ async function sendDataToBot(data) {
     }
 }
 
-// Функция для получения user_id из URL
 function getUserIdFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('user_id');
-}
-
-        // Функция для получения user_id из URL
-function getUserIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('user_id');
+    
+    // Сначала пробуем получить из URL параметров
+    let userId = urlParams.get('user_id');
+    
+    // Если в URL нет, пробуем получить из Telegram Web App
+    if (!userId && window.Telegram && Telegram.WebApp) {
+        // Пробуем разные способы получения user_id
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id || 
+                 Telegram.WebApp.initDataUnsafe?.sender_user_id ||
+                 Telegram.WebApp.initDataUnsafe?.id;
+        
+        if (userId) {
+            console.log('✅ Got user_id from Telegram Web App:', userId);
+        }
+    }
+    
+    // Если все еще нет, используем fallback
+    if (!userId) {
+        userId = '7760075871'; // Ваш user_id для тестирования
+        console.log('⚠️ Using fallback user_id:', userId);
+    }
+    
+    return userId.toString();
 }
 
         async function startAssetProcessing() {
@@ -754,6 +769,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
