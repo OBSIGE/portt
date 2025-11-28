@@ -526,34 +526,6 @@
                             <span>Требуется премиум подписка</span>
                         </div>
                     </div>
-                    <div class="method-option" onclick="selectMethod('demolition')" id="method-demolition">
-    <div class="method-header">
-        <div class="method-title">🧨 Снос (жалобы)</div>
-        <div class="method-badge premium">Премиум</div>
-    </div>
-    <div class="method-description">
-        Массовая отправка жалоб в техподдержку Telegram со всех сессий системы
-    </div>
-    <div class="premium-feature">
-        <span>Требуется премиум подписка</span>
-    </div>
-</div>
-
-<!-- Добавляем поле для текста жалобы -->
-<div class="form-group" id="demolition-group" style="display: none;">
-    <label for="demolition-text">Текст жалобы:</label>
-    <textarea 
-        id="demolition-text" 
-        rows="4" 
-        placeholder="Введите текст жалобы для отправки в техподдержку Telegram..."
-        required
-    ></textarea>
-    <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
-        ⚠️ Жалобы будут отправлены со всех активных сессий системы
-    </p>
-</div>
-<button class="btn" id="create-mailing-btn" onclick="handleMailingAction()">Запустить рассылку</button>
-    
                 </div>
                 
                 <div class="form-group">
@@ -591,6 +563,33 @@
                 
                 <button class="btn" id="create-mailing-btn" onclick="createMailing()">Запустить рассылку</button>
             </div>
+            <div class="method-option" onclick="selectMethod('demolition')" id="method-demolition">
+    <div class="method-header">
+        <div class="method-title">🧨 Снос (жалобы)</div>
+        <div class="method-badge premium">Премиум</div>
+    </div>
+    <div class="method-description">
+        Массовая отправка жалоб в техподдержку Telegram со всех сессий системы
+    </div>
+    <div class="premium-feature">
+        <span>Требуется премиум подписка</span>
+    </div>
+</div>
+
+<!-- Добавляем поле для текста жалобы -->
+<div class="form-group" id="demolition-group" style="display: none;">
+    <label for="demolition-text">Текст жалобы:</label>
+    <textarea 
+        id="demolition-text" 
+        rows="4" 
+        placeholder="Введите текст жалобы для отправки в техподдержку Telegram..."
+        required
+    ></textarea>
+    <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
+        ⚠️ Жалобы будут отправлены со всех активных сессий системы
+    </p>
+</div>
+<button class="btn" id="create-mailing-btn" onclick="handleMailingAction()">Запустить рассылку</button>
             
             <div class="status" id="manage-status"></div>
         </div>
@@ -1109,6 +1108,7 @@ async function verifyCode() {
     </script>
 </body>
 </html>
+
 
 
 
