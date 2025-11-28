@@ -7,211 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
-    .container {
-        padding: 20px;
-        margin: 10px;
-        border-radius: 12px;
-    }
-    
-    h1 {
-        font-size: 22px;
-    }
-    
-    .subtitle {
-        font-size: 14px;
-    }
-    
-    .auth-step {
-        padding: 20px;
-    }
-    
-    .nav-tab {
-        padding: 12px 8px;
-        font-size: 13px;
-    }
-    
-    .method-option {
-        padding: 14px;
-    }
-    
-    .method-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .method-badge {
-        align-self: flex-start;
-    }
-    
-    input, textarea, select {
-        padding: 12px 14px;
-        font-size: 16px; /* Улучшает UX на iOS */
-    }
-    
-    .btn {
-        padding: 14px;
-        font-size: 16px;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 15px;
-        margin: 5px;
-    }
-    
-    .logo-icon {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 15px;
-    }
-    
-    h1 {
-        font-size: 20px;
-    }
-    
-    .step-title {
-        font-size: 15px;
-    }
-    
-    .step-number {
-        width: 22px;
-        height: 22px;
-        font-size: 12px;
-    }
-    
-    .method-selector {
-        gap: 8px;
-    }
-    
-    .user-info {
-        padding: 15px;
-    }
-    
-    .info-row {
-        flex-direction: column;
-        gap: 2px;
-    }
-}
-
-/* Улучшения для очень маленьких экранов */
-@media (max-width: 360px) {
-    .container {
-        padding: 12px;
-    }
-    
-    .auth-step {
-        padding: 15px;
-    }
-    
-    .nav-tabs {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .nav-tab {
-        padding: 10px;
-    }
-}
-
-/* Улучшения для больших экранов */
-@media (min-width: 1200px) {
-    .container {
-        max-width: 500px;
-    }
-}
-
-/* Улучшения для планшетов */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-        max-width: 600px;
-        margin: 20px auto;
-    }
-}
-
-/* Улучшения для landscape ориентации на мобильных */
-@media (max-height: 500px) and (orientation: landscape) {
-    .container {
-        padding: 10px;
-    }
-    
-    .auth-step {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    
-    .logo {
-        margin-bottom: 20px;
-    }
-    
-    .step-description {
-        font-size: 13px;
-        margin-bottom: 12px;
-    }
-}
-
-/* Улучшения доступности и UX */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* Поддержка темной темы Telegram */
-@media (prefers-color-scheme: dark) {
-    body {
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    }
-    
-    .container {
-        background: rgba(30, 30, 30, 0.95);
-        color: #e0e0e0;
-    }
-    
-    input, textarea, select {
-        background: #2a2a2a;
-        color: #e0e0e0;
-        border-color: #404040;
-    }
-    
-    input::placeholder, textarea::placeholder {
-        color: #888;
-    }
-}
-
-/* Улучшения для Touch устройств */
-@media (hover: none) and (pointer: coarse) {
-    .btn:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .method-option:hover {
-        border-color: #4a5568;
-    }
-    
-    .method-option.selected {
-        border-color: #4299e1;
-    }
-    
-    /* Увеличиваем область нажатия для touch */
-    .btn, .method-option, .nav-tab {
-        min-height: 44px;
-    }
-    
-    input, textarea, select {
-        min-height: 44px;
-    }
-}
         * {
             margin: 0;
             padding: 0;
@@ -579,6 +374,211 @@
             font-size: 13px;
             margin-top: 8px;
         }
+        @media (max-width: 768px) {
+    .container {
+        padding: 20px;
+        margin: 10px;
+        border-radius: 12px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .subtitle {
+        font-size: 14px;
+    }
+    
+    .auth-step {
+        padding: 20px;
+    }
+    
+    .nav-tab {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+    
+    .method-option {
+        padding: 14px;
+    }
+    
+    .method-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .method-badge {
+        align-self: flex-start;
+    }
+    
+    input, textarea, select {
+        padding: 12px 14px;
+        font-size: 16px; /* Улучшает UX на iOS */
+    }
+    
+    .btn {
+        padding: 14px;
+        font-size: 16px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    .logo-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 15px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .step-title {
+        font-size: 15px;
+    }
+    
+    .step-number {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+    }
+    
+    .method-selector {
+        gap: 8px;
+    }
+    
+    .user-info {
+        padding: 15px;
+    }
+    
+    .info-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+}
+
+/* Улучшения для очень маленьких экранов */
+@media (max-width: 360px) {
+    .container {
+        padding: 12px;
+    }
+    
+    .auth-step {
+        padding: 15px;
+    }
+    
+    .nav-tabs {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .nav-tab {
+        padding: 10px;
+    }
+}
+
+/* Улучшения для больших экранов */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 500px;
+    }
+}
+
+/* Улучшения для планшетов */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+    }
+}
+
+/* Улучшения для landscape ориентации на мобильных */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container {
+        padding: 10px;
+    }
+    
+    .auth-step {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .logo {
+        margin-bottom: 20px;
+    }
+    
+    .step-description {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+}
+
+/* Улучшения доступности и UX */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Поддержка темной темы Telegram */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    }
+    
+    .container {
+        background: rgba(30, 30, 30, 0.95);
+        color: #e0e0e0;
+    }
+    
+    input, textarea, select {
+        background: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #404040;
+    }
+    
+    input::placeholder, textarea::placeholder {
+        color: #888;
+    }
+}
+
+/* Улучшения для Touch устройств */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .method-option:hover {
+        border-color: #4a5568;
+    }
+    
+    .method-option.selected {
+        border-color: #4299e1;
+    }
+    
+    /* Увеличиваем область нажатия для touch */
+    .btn, .method-option, .nav-tab {
+        min-height: 44px;
+    }
+    
+    input, textarea, select {
+        min-height: 44px;
+    }
+}
     </style>
 </head>
 <body>
@@ -1318,6 +1318,7 @@ async function verifyCode() {
     </script>
 </body>
 </html>
+
 
 
 
