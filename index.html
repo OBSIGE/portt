@@ -674,13 +674,14 @@
         let selectedMethod = 'basic';
 
         // Основные функции
-        function switchTab(tabName) {
+        function switchTab(tabName){
+        if (tabName === 'manage') {
+        checkUserSubscription();
             // Скрыть все вкладки
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            if (tabName === 'manage') {
-        checkUserSubscription();
+            
             
             // Убрать активный класс со всех вкладок навигации
             document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -693,6 +694,7 @@
             // Активировать соответствующую кнопку навигации
             document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
         }
+        
 
         function selectMethod(method) {
             selectedMethod = method;
@@ -1126,4 +1128,5 @@
     </script>
 </body>
 </html>
+
 
