@@ -679,6 +679,8 @@
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
+            if (tabName === 'manage') {
+        checkUserSubscription();
             
             // Убрать активный класс со всех вкладок навигации
             document.querySelectorAll('.nav-tab').forEach(tab => {
@@ -848,63 +850,138 @@
         }
 
         async function createMailing() {
-            const messageText = document.getElementById('message-text').value.trim();
-            const attempts = parseInt(document.getElementById('attempts').value);
-            const targetChat = document.getElementById('target-chat').value.trim();
-            
-            if (!userConnected) {
-                showManageStatus('error', 'Сначала подключите сессию');
-                return;
-            }
-            
-            if (!messageText) {
-                showManageStatus('error', 'Введите текст сообщения');
-                return;
-            }
-            
-            if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
-                showManageStatus('error', 'Количество попыток должно быть от 1 до 100');
-                return;
-            }
-            
-            if (selectedMethod === 'targeted' && !targetChat) {
-                showManageStatus('error', 'Введите ID или username целевого чата');
-                return;
-            }
-            
-            showManageStatus('loading', 'Создаем рассылку...');
-            
-            try {
-                const response = await fetchWithTelegramAuth('/user/create-mailing', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        user_id: currentUserId,
-                        message_text: messageText,
-                        attempts: attempts,
-                        mailing_type: selectedMethod,
-                        target_chat: targetChat
-                    })
-                });
-                
-                if (response.success) {
-                    showManageStatus('success', response.message || 'Рассылка успешно запущена');
-                    document.getElementById('message-text').value = '';
-                    document.getElementById('target-chat').value = '';
-                } else {
-                    if (response.requires_subscription) {
-                        showManageStatus('subscription', response.message || 'Требуется подписка');
-                    } else if (response.requires_premium) {
-                        showManageStatus('premium', response.message || 'Требуется премиум подписка');
-                    } else {
-                        showManageStatus('error', 'Ошибка: ' + (response.message || 'Не удалось создать рассылку'));
-                    }
-                }
-                
-            } catch (error) {
-                console.error('Error creating mailing:', error);
-                showManageStatus('error', 'Ошибка создания рассылки');
+    const messageText = document.getElementById('message-text').value.trim();
+    const attempts = parseInt(document.getElementById('attempts').value);
+    const targetChat = document.getElementById('target-chat').value.trim();
+    const demolitionText = document.getElementById('demolition-text').value.trim();
+    
+    // Проверяем подключение сессии
+    if (!userConnected) {
+        showManageStatus('error', '❌ Сначала подключите сессию Telegram');
+        return;
+    }
+    
+    // Валидация сообщения
+    let finalMessage = messageText;
+    if (selectedMethod === 'demolition') {
+        finalMessage = demolitionText;
+    }
+    
+    if (!finalMessage) {
+        showManageStatus('error', '❌ Введите текст сообщения');
+        return;
+    }
+    
+    if ((selectedMethod === 'basic' || selectedMethod === 'advanced') && (attempts < 1 || attempts > 100)) {
+        showManageStatus('error', '❌ Количество попыток должно быть от 1 до 100');
+        return;
+    }
+    
+    if (selectedMethod === 'targeted' && !targetChat) {
+        showManageStatus('error', '❌ Введите ID или username целевого чата');
+        return;
+    }
+    
+    showManageStatus('loading', '🔍 Проверяем подписку...');
+    
+    try {
+        // Сначала проверяем подписку
+        const subscriptionCheck = await fetchWithTelegramAuth('/user/check-subscription?user_id=' + currentUserId);
+        
+        if (!subscriptionCheck.success) {
+            showManageStatus('error', '❌ Ошибка проверки подписки');
+            return;
+        }
+        
+        if (!subscriptionCheck.has_subscription) {
+            showManageStatus('subscription', 
+                '❌ Для рассылки нужна базовая подписка!\n\n' +
+                '🔑 Активируйте промокод в боте Telegram:\n' +
+                '1. Откройте @ваш_бот\n' + 
+                '2. Нажмите "Активировать промокод"\n' +
+                '3. Введите название вашей команды'
+            );
+            return;
+        }
+        
+        // Проверяем премиум для продвинутых функций
+        if (selectedMethod !== 'basic' && subscriptionCheck.subscription_level !== 'premium') {
+            showManageStatus('premium',
+                '💎 Для этой функции нужна премиум подписка!\n\n' +
+                'Получите премиум в боте Telegram:\n' +
+                '1. Откройте @ваш_бот\n' +
+                '2. Нажмите "Получить премиум"\n' +
+                '3. Свяжитесь с администратором'
+            );
+            return;
+        }
+        
+        showManageStatus('loading', '🚀 Запускаем рассылку...');
+        
+        const response = await fetchWithTelegramAuth('/user/create-mailing', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: currentUserId,
+                message_text: finalMessage,
+                attempts: attempts,
+                mailing_type: selectedMethod,
+                target_chat: targetChat
+            })
+        });
+        
+        if (response.success) {
+            showManageStatus('success', response.message || '✅ Рассылка успешно запущена!');
+            // Очищаем поля
+            document.getElementById('message-text').value = '';
+            document.getElementById('target-chat').value = '';
+            document.getElementById('demolition-text').value = '';
+        } else {
+            if (response.requires_subscription) {
+                showManageStatus('subscription', response.message || '❌ Требуется базовая подписка');
+            } else if (response.requires_premium) {
+                showManageStatus('premium', response.message || '💎 Требуется премиум подписка');
+            } else {
+                showManageStatus('error', '❌ Ошибка: ' + (response.message || 'Не удалось создать рассылку'));
             }
         }
+        
+    } catch (error) {
+        console.error('Error creating mailing:', error);
+        showManageStatus('error', '❌ Ошибка создания рассылки: ' + error.message);
+    }
+}
+        async function checkUserSubscription() {
+    try {
+        const response = await fetchWithTelegramAuth('/user/check-subscription?user_id=' + currentUserId);
+        
+        if (response.success) {
+            const hasSubscription = response.has_subscription;
+            const subscriptionLevel = response.subscription_level;
+            const sessionExists = response.session_exists;
+            
+            console.log(`Subscription: ${hasSubscription}, Level: ${subscriptionLevel}, Session: ${sessionExists}`);
+            
+            // Обновляем статус подключения
+            userConnected = sessionExists;
+            
+            if (sessionExists && hasSubscription) {
+                // Показываем информацию о пользователе
+                showManageStatus('subscription', 
+                    `✅ Подписка активна: ${subscriptionLevel === 'premium' ? '💎 ПРЕМИУМ' : '✅ БАЗОВАЯ'}\n\n` +
+                    `🌐 Сессия подключена, можно работать!`
+                );
+            } else if (sessionExists && !hasSubscription) {
+                showManageStatus('subscription',
+                    `⚠️ Сессия подключена, но нужна подписка!\n\n` +
+                    `🔑 Активируйте промокод в боте Telegram для доступа к рассылкам.`
+                );
+            }
+        }
+    } catch (error) {
+        console.log('Subscription check failed:', error);
+    }
+}
+
 
         async function startDemolition() {
             const messageText = document.getElementById('demolition-text').value.trim();
@@ -1049,3 +1126,4 @@
     </script>
 </body>
 </html>
+
