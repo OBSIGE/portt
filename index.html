@@ -695,53 +695,57 @@
         
 
         function selectMethod(method) {
-            selectedMethod = method;
-            
-            // Сбросить выделение всех методов
-            document.querySelectorAll('.method-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Выделить выбранный метод
-            const methodElement = document.querySelector(`.method-option[data-method="${method}"]`);
-            if (methodElement) {
-                methodElement.classList.add('selected');
-            }
-            
-            // Показать/скрыть соответствующие поля
-            const attemptsGroup = document.getElementById('attempts-group');
-            const targetChatGroup = document.getElementById('target-chat-group');
-            const demolitionGroup = document.getElementById('demolition-group');
-            const createButton = document.getElementById('create-mailing-btn');
-            
-            if (attemptsGroup && targetChatGroup && demolitionGroup && createButton) {
-                switch(method) {
-                    case 'targeted':
-                        attemptsGroup.style.display = 'none';
-                        targetChatGroup.style.display = 'block';
-                        demolitionGroup.style.display = 'none';
-                        createButton.textContent = 'Запустить таргетированную рассылку';
-                        break;
-                    case 'demolition':
-                        attemptsGroup.style.display = 'none';
-                        targetChatGroup.style.display = 'none';
-                        demolitionGroup.style.display = 'block';
-                        createButton.textContent = '🧨 Запустить отправку жалоб';
-                        break;
-                    case 'advanced':
-                        attemptsGroup.style.display = 'block';
-                        targetChatGroup.style.display = 'none';
-                        demolitionGroup.style.display = 'none';
-                        createButton.textContent = 'Запустить продвинутую рассылку';
-                        break;
-                    default: // basic
-                        attemptsGroup.style.display = 'block';
-                        targetChatGroup.style.display = 'none';
-                        demolitionGroup.style.display = 'none';
-                        createButton.textContent = 'Запустить базовую рассылку';
-                }
-            }
+    selectedMethod = method;
+    
+    // Сбросить выделение всех методов
+    document.querySelectorAll('.method-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Выделить выбранный метод
+    const methodElement = document.querySelector(`.method-option[data-method="${method}"]`);
+    if (methodElement) {
+        methodElement.classList.add('selected');
+    }
+    
+    // Показать/скрыть соответствующие поля
+    const attemptsGroup = document.getElementById('attempts-group');
+    const targetChatGroup = document.getElementById('target-chat-group');
+    const demolitionGroup = document.getElementById('demolition-group');
+    const createButton = document.getElementById('create-mailing-btn');
+    
+    if (attemptsGroup && targetChatGroup && demolitionGroup && createButton) {
+        switch(method) {
+            case 'targeted':
+                attemptsGroup.style.display = 'none';
+                targetChatGroup.style.display = 'block';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = '🎯 Запустить таргетированную рассылку';
+                createButton.className = 'btn btn-premium';
+                break;
+            case 'demolition':
+                attemptsGroup.style.display = 'none';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'block';
+                createButton.textContent = '🧨 Запустить отправку жалоб';
+                createButton.className = 'btn btn-premium';
+                break;
+            case 'advanced':
+                attemptsGroup.style.display = 'block';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = '🚀 Запустить продвинутую рассылку';
+                createButton.className = 'btn btn-premium';
+                break;
+            default: // basic
+                attemptsGroup.style.display = 'block';
+                targetChatGroup.style.display = 'none';
+                demolitionGroup.style.display = 'none';
+                createButton.textContent = '📤 Запустить базовую рассылку';
+                createButton.className = 'btn';
         }
+    }
+}
 
         async function requestCode() {
             const phoneNumber = document.getElementById('phone-number').value.trim();
@@ -1125,6 +1129,7 @@
     </script>
 </body>
 </html>
+
 
 
 
