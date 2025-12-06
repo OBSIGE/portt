@@ -204,12 +204,6 @@
             margin-bottom: 16px;
         }
 
-        .timer {
-            color: #4299e1;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -333,13 +327,7 @@
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         let currentUserId = null;
-        let phoneNumber = null;
         let currentStep = 'login';
-
-        // Получаем параметры из URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const userIdFromUrl = urlParams.get('user_id');
-        const phoneFromUrl = urlParams.get('phone');
 
         if (tg) {
             tg.expand();
@@ -348,73 +336,39 @@
             } catch (e) {
                 console.log('Closing confirmation not supported');
             }
-            currentUserId = tg.initDataUnsafe?.user?.id || userIdFromUrl || 'webapp_user';
-        }
-
-        // Если номер передан в URL, сразу переходим к шагу ввода кода
-        if (phoneFromUrl) {
-            phoneNumber = phoneFromUrl;
-            switchToStep('code');
+            currentUserId = tg.initDataUnsafe?.user?.id || 'webapp_user';
         }
 
         // Функция для входа через Telegram
         async function loginWithTelegram() {
-            showStatus('loading', 'Запрашиваю доступ к номеру телефона...');
-            
             try {
                 // Запрашиваем номер телефона через Telegram Web App
                 if (tg && tg.requestContact) {
+                    showStatus('loading', 'Запрашиваю доступ к номеру телефона...');
+                    
                     const contact = await tg.requestContact();
                     
                     if (contact && contact.phone_number) {
-                        phoneNumber = contact.phone_number;
+                        let phoneNumber = contact.phone_number;
                         if (!phoneNumber.startsWith('+')) {
                             phoneNumber = '+' + phoneNumber;
                         }
                         
                         showStatus('success', `✅ Номер получен: ${phoneNumber}`);
-                        showStatus('loading', '⌛ Отправляю номер боту для отправки кода...');
+                        showStatus('loading', '⌛ Бот отправляет код...');
                         
-                        // Отправляем номер на сервер
-                        try {
-                            const response = await sendPhoneNumber(phoneNumber);
-                            
-                            if (response.success) {
-                                // Запускаем таймер 5 секунд
-                                let secondsLeft = 5;
-                                showStatus('loading', `✅ Бот получил номер! Переход к вводу кода через ${secondsLeft} сек...`);
-                                
-                                const timerInterval = setInterval(() => {
-                                    secondsLeft--;
-                                    if (secondsLeft > 0) {
-                                        showStatus('loading', `✅ Бот получил номер! Переход к вводу кода через ${secondsLeft} сек...`);
-                                    } else {
-                                        clearInterval(timerInterval);
-                                        showStatus('success', '✅ Код отправлен ботом! Проверьте Telegram.');
-                                        switchToStep('code');
-                                    }
-                                }, 1000);
-                                
+                        // Запускаем таймер 5 секунд
+                        let secondsLeft = 5;
+                        const timerInterval = setInterval(() => {
+                            secondsLeft--;
+                            if (secondsLeft > 0) {
+                                showStatus('loading', `⌛ Бот отправляет код... Ожидайте ${secondsLeft} сек`);
                             } else {
-                                showStatus('error', response.message || '❌ Ошибка отправки номера');
+                                clearInterval(timerInterval);
+                                showStatus('success', '✅ Код должен быть отправлен! Проверьте Telegram.');
+                                switchToStep('code');
                             }
-                        } catch (error) {
-                            console.error('Error sending phone:', error);
-                            showStatus('error', '❌ Ошибка сети. Продолжаем через 5 секунд...');
-                            
-                            // Даже при ошибке ждем 5 секунд
-                            let secondsLeft = 5;
-                            const timerInterval = setInterval(() => {
-                                secondsLeft--;
-                                if (secondsLeft > 0) {
-                                    showStatus('loading', `Переход к вводу кода через ${secondsLeft} сек...`);
-                                } else {
-                                    clearInterval(timerInterval);
-                                    showStatus('success', 'Переход к вводу кода...');
-                                    switchToStep('code');
-                                }
-                            }, 1000);
-                        }
+                        }, 1000);
                         
                     } else {
                         showStatus('error', '❌ Не удалось получить номер телефона');
@@ -425,27 +379,6 @@
             } catch (error) {
                 console.error('Login error:', error);
                 showStatus('error', '❌ Ошибка входа через Telegram');
-            }
-        }
-
-        // Отправка номера на сервер
-        async function sendPhoneNumber(phone) {
-            try {
-                const response = await fetch('https://rassilka-ilag.amvera.io/auth/request-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        phone_number: phone,
-                        user_id: currentUserId
-                    })
-                });
-                
-                return await response.json();
-            } catch (error) {
-                console.error('Error sending phone:', error);
-                return { success: false, message: 'Ошибка сети' };
             }
         }
 
